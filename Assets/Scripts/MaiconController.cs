@@ -97,14 +97,16 @@ public class MaiconController : MonoBehaviour
                         }
                         break;
                     }
-                    if (interactionObject.CompareTag("Interactive"))
+                    if (interactionObject.CompareTag("Escalavel"))
                     {
                         SegurarCalha();
                         break;
                     }
                     if (interactionObject.CompareTag("Rua"))
                     {
-                        //Core.MudarRua(interactionObject.name); // dar tp aki dps
+                        Transform spawn = interactionObject.transform.parent;
+                        int index = spawn.childCount - interactionObject.transform.GetSiblingIndex() - 1;
+                        this.transform.position = new Vector3(spawn.GetChild(index).position.x, this.transform.position.y, 0f);
                         break;
                     }
                 }
@@ -181,20 +183,36 @@ public class MaiconController : MonoBehaviour
         }
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision) // vou mudar isso dps
     {
-        if (collision.gameObject.CompareTag("Interactive") || collision.gameObject.CompareTag("Grafiti") || collision.gameObject.CompareTag("Rua"))
+        if (
+            collision.gameObject.CompareTag("Escalavel") ||
+            collision.gameObject.CompareTag("Grafiti") ||
+            collision.gameObject.CompareTag("Rua")
+        )
         {
             interactionObject = collision.gameObject;
             interactionAvlb = true;
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private void OnTriggerExit2D(Collider2D collision) // vou mudar isso dps
     {
-        interactionAvlb = collision.gameObject.CompareTag("Interactive") || collision.gameObject.CompareTag("Grafiti") || collision.gameObject.CompareTag("Rua") ? false : interactionAvlb;
-        if (collision.gameObject.CompareTag("Interactive")) SoltarCalha();
-        if (collision.gameObject.CompareTag("Grafiti")) uiReference.GetChild(1).gameObject.SetActive(false);
+        if (collision.gameObject.CompareTag("Escalavel"))
+        {
+            interactionAvlb = false;
+            SoltarCalha();
+        }
+        if (collision.gameObject.CompareTag("Grafiti"))
+        {
+
+            interactionAvlb = false;
+            uiReference.GetChild(1).gameObject.SetActive(false);
+        }
+        if (collision.gameObject.CompareTag("Rua"))
+        {
+            interactionAvlb = false;
+        }
     }
 
     /* COLLIDER */
