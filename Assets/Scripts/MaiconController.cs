@@ -11,12 +11,10 @@ public enum MOVIMENTACAO
 
 public class MaiconController : MonoBehaviour
 {
-    /* GAMBETA */
-    [SerializeField] private UIController uiReference;
-    /* Propriedades */
-    private int Paint { get; set; } // pra adicionar as diferentes cores dps
+    /* UI */
+    private Transform uiReference;
     /* Flags */
-    private bool isGrounded = true;
+    private bool isGrounded = false;
     private bool interactionAvlb = false;
     private bool hasCoyoteTime = true;
     private bool estaAmortecendo = false;
@@ -49,6 +47,7 @@ public class MaiconController : MonoBehaviour
 
     private void Start()
     {
+        uiReference = Camera.main.transform.GetChild(0);
         maiconSprite = this.GetComponent<SpriteRenderer>();
         corpoMaicon = this.GetComponent<Rigidbody2D>();
         pehMaicon = this.transform.GetChild(0).GetComponent<BoxCollider2D>();
@@ -72,21 +71,30 @@ public class MaiconController : MonoBehaviour
         // deteccao de entrada de interacao
         if (Input.GetKeyDown(KeyCode.E) && interactionAvlb)
         {
-            // verificar dps qual tipo de objeto pra escolher a acao... no momento, apenas troca entre subir calha e andar normal
             switch (movimentacaoAtual)
             {
                 case MOVIMENTACAO.Livre:
-                    if (interactionObject.GetComponent<GrafitiController>())
+                    if (interactionObject.CompareTag("Grafiti"))
                     {
-                        if (Paint > 0 && interactionObject.transform.GetChild(0).gameObject.activeSelf)
+                        if (Core.GetQuantidadeTinta() > 0 && interactionObject.transform.GetChild(0).gameObject.activeSelf)
                         {
-                            UpdatePainValue(-1);
-                            interactionObject.transform.GetChild(0).gameObject.SetActive(false);
-                            interactionObject.transform.GetChild(1).gameObject.SetActive(true);
+                            Core.IncrementaQuantidadeTinta(-1);
+                            interactionObject.transform.GetChild(0).gameObject.SetActive(false); // desliga pichacao
+                            interactionObject.transform.GetChild(1).gameObject.SetActive(true); // liga grafite
                         }
                         break;
                     }
-                    SegurarCalha(); break;
+                    if (interactionObject.CompareTag("Interactive"))
+                    {
+                        SegurarCalha();
+                        break;
+                    }
+                    if (interactionObject.CompareTag("Rua"))
+                    {
+                        //Core.MudarRua(interactionObject.name); // dar tp aki dps
+                        break;
+                    }
+                    break;
                 case MOVIMENTACAO.Escalada: SoltarCalha(); break;
             }
         }
@@ -158,25 +166,19 @@ public class MaiconController : MonoBehaviour
         pehMaicon.isTrigger = false;
     }
 
-    private void UpdatePainValue(int increment)
-    {
-        Paint += increment;
-        uiReference.UpdatePaintMeter(Paint);
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Grafiti")) uiReference.transform.GetChild(1).gameObject.SetActive(true);
+        if (collision.gameObject.CompareTag("Grafiti")) uiReference.GetChild(1).gameObject.SetActive(true);
         if (collision.gameObject.CompareTag("Collectible"))
         {
             GameObject.Destroy(collision.gameObject);
-            UpdatePainValue(1);
+            Core.IncrementaQuantidadeTinta(1);
         }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Interactive") || collision.gameObject.CompareTag("Grafiti"))
+        if (collision.gameObject.CompareTag("Interactive") || collision.gameObject.CompareTag("Grafiti") || collision.gameObject.CompareTag("Rua"))
         {
             interactionObject = collision.gameObject;
             interactionAvlb = true;
@@ -186,9 +188,9 @@ public class MaiconController : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         
-        interactionAvlb = collision.gameObject.CompareTag("Interactive") || collision.gameObject.CompareTag("Grafiti") ? false : interactionAvlb;
+        interactionAvlb = collision.gameObject.CompareTag("Interactive") || collision.gameObject.CompareTag("Grafiti") || collision.gameObject.CompareTag("Rua") ? false : interactionAvlb;
         if (collision.gameObject.CompareTag("Interactive")) SoltarCalha();
-        if (collision.gameObject.CompareTag("Grafiti")) uiReference.transform.GetChild(1).gameObject.SetActive(false);
+        if (collision.gameObject.CompareTag("Grafiti")) uiReference.GetChild(1).gameObject.SetActive(false);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -198,7 +200,7 @@ public class MaiconController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        isGrounded = collision.gameObject.CompareTag("Ground") && pehMaicon.transform.position.y > collision.transform.position.y ? true : isGrounded; // por sleep dps
+        isGrounded = collision.gameObject.CompareTag("Ground") && pehMaicon.transform.position.y - collision.transform.position.y > 0 ? true : isGrounded; // por sleep dps
     }
 
     private void OnCollisionExit2D(Collision2D collision)
