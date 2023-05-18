@@ -1,10 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class MainMenu : MonoBehaviour
 {
+    private void Awake()
+    {
+        Screen.SetResolution(1280, 1200, true);
+    }
+
     private void Start()
     {
         Core.Reset();
@@ -14,7 +19,7 @@ public class MainMenu : MonoBehaviour
     {
         if (Input.GetButtonDown("MENU"))
         {
-            Core.MudarRua("Rua");
+            SceneManager.LoadScene("Rua");
         }
     }
 }
