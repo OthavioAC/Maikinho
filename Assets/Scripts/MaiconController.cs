@@ -73,16 +73,20 @@ public class MaiconController : MonoBehaviour
         velocidadeAtual = velocidadeBase * (estaCorrendo ? 1.5f : 1f);
         // calcular tempo de atraso para pula apos queda de plataforma
         // deteccao de entrada geral
-        movimentoHorizontal = Input.GetAxis("HORIZONTAL0");
-        movimentoVertical = Input.GetAxis("VERTICAL0");
-        estaInteragindo = Input.GetButtonDown("PRETO0");
-        botaoPulo = Input.GetButtonDown("AZUL0");
-        estaCorrendo = Input.GetButton("VERMELHO0");
-        // movimento
-        if (estaInteragindo && objetoInteragivel != null)
+        movimentoHorizontal = Input.GetAxis("HORIZONTAL0") + Input.GetAxis("HORIZONTAL1");
+        movimentoHorizontal = movimentoHorizontal > 1 ? 1 : (movimentoHorizontal < -1 ? -1 : movimentoHorizontal); // cap
+        movimentoVertical = Input.GetAxis("VERTICAL0") + Input.GetAxis("VERTICAL1");
+        movimentoVertical = movimentoVertical > 1 ? 1 : (movimentoVertical < -1 ? -1 : movimentoVertical); // cap
+        estaInteragindo = Input.GetButtonDown("VERDE0") || Input.GetButtonDown("VERDE1");
+        botaoPulo = Input.GetButtonDown("VERMELHO0") || Input.GetButtonDown("VERMELHO1");
+        estaCorrendo = Input.GetButton("PRETO0") || Input.GetButton("PRETO1");
+        // interacao
+        if (objetoInteragivel != null)
         {
-            objetoInteragivel.InteracaoOnButtonDown(this);
+            if (estaInteragindo || ((Input.GetButtonDown("VERTICAL0") || Input.GetButtonDown("VERTICAL1")) && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.Portal))
+                objetoInteragivel.InteracaoOnButtonDown(this);
         }
+        // movimento
         switch (TipoMovimentoAtual)
         {
             case TipoMovimento.Livre:
@@ -95,7 +99,7 @@ public class MaiconController : MonoBehaviour
                     puloCancelado = false;
                     animator.Play(Animator.StringToHash("maiconPular"));
                 }
-                puloCancelado = Input.GetButtonUp("AZUL0") ? true : puloCancelado;
+                puloCancelado = Input.GetButtonUp("VERMELHO0") || Input.GetButtonUp("VERMELHO1") ? true : puloCancelado;
                 // atualizacao da animacao no movimento livre
                 if (isGrounded && !estaPulando)
                 {

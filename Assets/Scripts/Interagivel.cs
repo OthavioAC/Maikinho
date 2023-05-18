@@ -17,6 +17,11 @@ public class Interagivel : MonoBehaviour
 {
     [SerializeField] private TipoInteragivel tipoInteragivel;
 
+    public TipoInteragivel GetTipoInteragivel()
+    {
+        return tipoInteragivel;
+    }
+
     public bool InteracaoOnTriggerEnter(MaiconController maicon)
     {
         switch (tipoInteragivel)
