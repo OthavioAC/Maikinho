@@ -1,0 +1,11 @@
+
+.vs/
+Library/
+Logs/
+obj/
+Packages/
+Temp/
+UserSettings/
+.vsconfig
+Assembly-CSharp.csproj
+maikinho-grafitero.sln
