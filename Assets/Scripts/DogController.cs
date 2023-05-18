@@ -9,6 +9,8 @@ public class DogController : MonoBehaviour
     [SerializeField] private float dogSpeed = 0f;
     [SerializeField] private float comfortableDistance = 0f;
 
+    private bool estaSeguindo = false;
+
     private Rigidbody2D corpoDog;
 
     private float rotationFrame = 1f;
@@ -23,8 +25,13 @@ public class DogController : MonoBehaviour
     private void Update()
     {
         float currentDistance = maicon.position.x - this.transform.position.x;
+        if (!estaSeguindo && Mathf.Abs(currentDistance) < 1)
+        {
+            estaSeguindo = true;
+        }
+
         this.GetComponent<SpriteRenderer>().flipX = currentDistance < 0 ? true : (currentDistance > 0 ? false : this.GetComponent<SpriteRenderer>().flipX);
-        if (Math.Abs(currentDistance) > comfortableDistance && this.GetComponent<Rigidbody2D>().velocity.magnitude < dogSpeed)
+        if (estaSeguindo && Math.Abs(currentDistance) > comfortableDistance && this.GetComponent<Rigidbody2D>().velocity.magnitude < dogSpeed)
         {
             corpoDog.velocity += new Vector2(currentDistance, 0f).normalized * dogSpeed * Time.deltaTime;
         }
