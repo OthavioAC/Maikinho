@@ -16,12 +16,12 @@ public class MaiconController : MonoBehaviour
     /* Flags */
     private bool isGrounded = false;
     private bool interactionAvlb = false;
-    private bool hasCoyoteTime = true;
     private bool estaAmortecendo = false;
     /* Input Flags */
     private bool estaCorrendo = false;
+    private bool puloAgendado = false;
     private bool estaPulando = false;
-    private bool puloSolto = false;
+    private bool puloCancelado = false;
     /* Maicon Components */
     private Rigidbody2D corpoMaicon;
     private BoxCollider2D pehMaicon;
@@ -42,8 +42,11 @@ public class MaiconController : MonoBehaviour
     private MOVIMENTACAO movimentacaoAtual;
     [SerializeField] private float baseCoyoteTime = 0f;
     private GameObject interactionObject;
-    private float coyoteTime = 0f;
     private Vector2 movimentoFinal;
+
+    private Animator animator;
+
+    private bool estaInteragindo;
 
     private void Start()
     {
@@ -52,6 +55,7 @@ public class MaiconController : MonoBehaviour
         corpoMaicon = this.GetComponent<Rigidbody2D>();
         pehMaicon = this.transform.GetChild(0).GetComponent<BoxCollider2D>();
         movimentacaoAtual = MOVIMENTACAO.Livre;
+        animator = this.GetComponent<Animator>();
     }
     
     private void Update()
@@ -59,21 +63,30 @@ public class MaiconController : MonoBehaviour
         // setar se maicon ta correndo ou trotando
         velocidadeAtual = velocidadeBase * (estaCorrendo ? 2f : 1f);
         // calcular tempo de atraso para pula apos queda de plataforma
-        coyoteTime -= coyoteTime > 0f ? Time.deltaTime : 0f; // ainda nao ta sendo usado
-        // deteccao de entrada de movimento
-        estaCorrendo = Input.GetKey(KeyCode.LeftShift);
-        estaPulando = Input.GetKey(KeyCode.UpArrow); // mudar pra eixo
-        puloSolto = Input.GetKeyUp(KeyCode.UpArrow); // mudar pra eixo
-        movimentoHorizontal = Input.GetAxis("Horizontal");
-        movimentoVertical = Input.GetAxis("Vertical");
+        // deteccao de entrada geral
+        movimentoHorizontal = Input.GetAxis("HORIZONTAL1");
+        movimentoVertical = Input.GetAxis("VERTICAL1");
+        estaInteragindo = Input.GetButtonDown("VERDE0");
         // atualizacao da direcao da animacao do maicon
         maiconSprite.flipX = movimentoHorizontal < 0 ? true : (movimentoHorizontal > 0 ? false : maiconSprite.flipX);
-        // deteccao de entrada de interacao
-        if (Input.GetKeyDown(KeyCode.E) && interactionAvlb)
+        // movimento
+        switch (movimentacaoAtual)
         {
-            switch (movimentacaoAtual)
-            {
-                case MOVIMENTACAO.Livre:
+            case MOVIMENTACAO.Livre:
+                // deteccao de entrada do movimento livre
+                estaCorrendo = Input.GetButton("VERMELHO0");
+                if (Input.GetButtonDown("AZUL0") && isGrounded)
+                {
+                    puloAgendado = true;
+                    animator.Play(Animator.StringToHash("maiconPular"));
+                }
+                puloCancelado = Input.GetButtonUp("AZUL0") ? true : puloCancelado;
+                // atualizacao da animacao no movimento livre
+                if (!estaPulando) animator.Play(Animator.StringToHash(movimentoHorizontal != 0 ? "maiconCorrer" : "maiconIdle"));
+                if (!isGrounded) animator.Play(Animator.StringToHash(corpoMaicon.velocity.y < 0 ? "maiconCair" : "maiconPular"));
+                // interacao no movimento livre
+                if (estaInteragindo && interactionAvlb)
+                {
                     if (interactionObject.CompareTag("Grafiti"))
                     {
                         if (Core.GetQuantidadeTinta() > 0 && interactionObject.transform.GetChild(0).gameObject.activeSelf)
@@ -94,61 +107,50 @@ public class MaiconController : MonoBehaviour
                         //Core.MudarRua(interactionObject.name); // dar tp aki dps
                         break;
                     }
-                    break;
-                case MOVIMENTACAO.Escalada: SoltarCalha(); break;
-            }
-        }
-        
-        switch (movimentacaoAtual) // como separei o switch em dois, talvez seja melhor transformar em if
-        {
-             case MOVIMENTACAO.Escalada:
-                 this.transform.position += new Vector3(0f, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
-                 break;
-            default:
+                }
+                break;
+            case MOVIMENTACAO.Escalada:
+                // atualizacao do movimento de escalada
+                this.transform.position += new Vector3(0f, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
+                // interacao no movimento de escalada
+                if (estaInteragindo && interactionAvlb)
+                    SoltarCalha();
                 break;
         }
     }
 
     private void FixedUpdate()
     {
-        // atualiacao do movimento com base em tipo de movimentacao
-        switch (movimentacaoAtual) // como separei o switch em dois, talvez seja melhor transformar em if
+        if (movimentacaoAtual == MOVIMENTACAO.Livre)
         {
-            case MOVIMENTACAO.Livre:
-                /* CALCULO X */
-                // x inicial, levando em conta aceleracao
-                movimentoFinal.x = Acelerar(movimentoFinal.x, movimentoHorizontal, aceleracao);
-                // cap aceleracao
-                if (movimentoFinal.x > -aceleracao && movimentoFinal.x < aceleracao)
-                    movimentoFinal.x = 0;
-                /* CALCULO Y */
-                // y inicial, levando em conta amortecimento
-                movimentoFinal.y -= gravidade / (estaAmortecendo ? constanteDeDepieri : 1f);
-                estaAmortecendo = false;
-                // adicao de altura no pulo se houver movimento horizontal
-                if (isGrounded && estaPulando)
-                    movimentoFinal.y = pulo + Math.Abs(movimentoFinal.x * velocidadeAtual / 3f);
-                // amortecimento do pulo (soltar mais cedo e pular menos)
-                if (puloSolto && movimentoFinal.y > 0)
-                {
-                    puloSolto = false;
-                    movimentoFinal.y /= 2f;
-                    estaAmortecendo = true;
-                }
-                // ignorar gravidade se nao houver diferencial vertical
-                if (isGrounded && !(movimentoFinal.y > 0))
-                    movimentoFinal.y = -0.01f;
-                // atualizar velocidade do maicon
-                corpoMaicon.velocity = new Vector2(movimentoFinal.x * velocidadeAtual, movimentoFinal.y);
-                break;
-            default:
-                break;
+            /* CALCULO X */
+            // x inicial, levando em conta aceleracao
+            movimentoFinal.x = movimentoFinal.x + ((movimentoFinal.x < movimentoHorizontal * multiplicadorAceleracao) ? aceleracao : ((movimentoFinal.x > movimentoHorizontal * multiplicadorAceleracao) ? -aceleracao : -(movimentoHorizontal / 10f))) + (movimentoHorizontal / 10f);
+            // cap aceleracao
+            movimentoFinal.x = movimentoFinal.x > -aceleracao && movimentoFinal.x < aceleracao ? 0 : movimentoFinal.x;
+            /* CALCULO Y */
+            // y inicial, levando em conta amortecimento
+            movimentoFinal.y -= gravidade / (estaAmortecendo ? constanteDeDepieri : 1f);
+            estaAmortecendo = false;
+            // adicao de altura no pulo se houver movimento horizontal
+            if (isGrounded && puloAgendado)
+            {
+                puloAgendado = false;
+                estaPulando = true;
+                movimentoFinal.y = pulo + Math.Abs(movimentoFinal.x * velocidadeAtual / 3f);
+            }
+            // amortecimento do pulo (soltar mais cedo e pular menos)
+            if (puloCancelado && movimentoFinal.y > 0)
+            {
+                puloCancelado = false;
+                estaAmortecendo = true;
+                movimentoFinal.y /= 2f;
+            }
+            // ignorar gravidade se nao houver diferencial vertical
+            movimentoFinal.y = isGrounded && movimentoFinal.y <= 0 ? -0.01f : movimentoFinal.y;
+            // atualizar velocidade do maicon
+            corpoMaicon.velocity = new Vector2(movimentoFinal.x * velocidadeAtual, movimentoFinal.y);
         }
-    }
-
-    private float Acelerar(float movimentoFinalX, float movimentoHorizontalX, float aceleracao)
-    {
-        return movimentoFinalX + ((movimentoFinalX < movimentoHorizontalX * multiplicadorAceleracao) ? aceleracao : ((movimentoFinalX > movimentoHorizontalX * multiplicadorAceleracao) ? -aceleracao : -(movimentoHorizontalX / 10f))) + (movimentoHorizontalX / 10f);
     }
 
     private void SegurarCalha()
@@ -158,14 +160,17 @@ public class MaiconController : MonoBehaviour
         corpoMaicon.velocity = Vector2.zero;
         this.transform.position = new Vector3(interactionObject.transform.position.x, this.transform.position.y, this.transform.position.z);
         pehMaicon.isTrigger = true;
+        animator.Play(Animator.StringToHash("maiconEscalar"));
     }
 
     private void SoltarCalha()
     {
         movimentacaoAtual = MOVIMENTACAO.Livre;
         pehMaicon.isTrigger = false;
+        animator.Play(Animator.StringToHash(isGrounded ? "maiconIdle" : "maiconCair"));
     }
 
+    /* TRIGGER */
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Grafiti")) uiReference.GetChild(1).gameObject.SetActive(true);
@@ -187,15 +192,20 @@ public class MaiconController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        
         interactionAvlb = collision.gameObject.CompareTag("Interactive") || collision.gameObject.CompareTag("Grafiti") || collision.gameObject.CompareTag("Rua") ? false : interactionAvlb;
         if (collision.gameObject.CompareTag("Interactive")) SoltarCalha();
         if (collision.gameObject.CompareTag("Grafiti")) uiReference.GetChild(1).gameObject.SetActive(false);
     }
 
+    /* COLLIDER */
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        hasCoyoteTime = collision.gameObject.CompareTag("Ground") ? true : hasCoyoteTime;
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            animator.Play(Animator.StringToHash("maiconAterrissar"));
+            estaPulando = false;
+        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -205,10 +215,6 @@ public class MaiconController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            coyoteTime = hasCoyoteTime ? baseCoyoteTime : 0f;
-            isGrounded = false;
-        }
+        if (collision.gameObject.CompareTag("Ground")) isGrounded = false;
     }
 }

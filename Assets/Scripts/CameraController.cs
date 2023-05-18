@@ -47,7 +47,7 @@ public class CameraController : MonoBehaviour
         float offset = (float)Math.Sqrt(Math.Pow((this.transform.position.x - Camera.main.ViewportToWorldPoint(Vector3.one).x), 2));
         (float, int) positionBuffer = (newXPosition, 0);
         foreach((float, float) rua in streetBounds)
-        {
+        { 
             if (Camera.main.ViewportToWorldPoint(Vector3.zero).x + diff > rua.Item1 && Camera.main.ViewportToWorldPoint(Vector3.one).x + diff < rua.Item2) return newXPosition;
             float dist0 = (float)Math.Sqrt(Math.Pow((newXPosition - positionBuffer.Item1), 2));
             float dist1 = (float)Math.Sqrt(Math.Pow((newXPosition - rua.Item1), 2));
