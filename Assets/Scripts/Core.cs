@@ -50,4 +50,9 @@ public static class Core
         RuaAtual = NomeRua;
         SceneManager.LoadScene(NomeRua);
     }
+
+    public static void Reset()
+    {
+        quantidadeTinta = 0;
+    }
 }
