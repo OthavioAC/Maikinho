@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public enum COR_TINTA // brainstorming
+public enum CorTinta // brainstorming
 {
     Vermelho,
     Verde,
@@ -30,12 +30,19 @@ public static class Core
         UpdateNumeroTinta();
     }
 
+    public static bool SetIndicadorGrafite(bool indicadorSetActive)
+    {
+        GameObject indicadorGrafite = Camera.main.transform.GetChild(0).GetChild(1).gameObject; // pessimo, mudar dps
+        indicadorGrafite.SetActive(indicadorSetActive);
+        return true;
+    }
+
     private static void UpdateNumeroTinta()
     {
         Transform referenciaUI = Camera.main.transform.GetChild(0);
         if(referenciaUI != null)
         {
-            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text = quantidadeTinta.ToString();
+            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text = "TINTA: " + quantidadeTinta.ToString();
         }
     }
 
