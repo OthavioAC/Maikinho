@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public enum TipoMovimento
@@ -16,17 +17,19 @@ public class MaiconController : MonoBehaviour
 {
     /* Flags */
     private bool isGrounded = false;
-    //private bool interactionAvlb = false;
     private bool estaAmortecendo = false;
     /* Input Flags */
     private bool estaCorrendo = false;
+    private bool botaoPulo = false;
     private bool puloAgendado = false;
     private bool estaPulando = false;
     private bool puloCancelado = false;
+    private bool estaInteragindo = false;
     /* Maicon Components */
     private Rigidbody2D corpoMaicon;
     private BoxCollider2D pehMaicon;
     private SpriteRenderer maiconSprite;
+    private Animator animator;
     /* Y */
     [SerializeField] private float gravidade = 0f;
     [SerializeField] private float pulo = 0f;
@@ -41,22 +44,16 @@ public class MaiconController : MonoBehaviour
     private float velocidadeAtual = 0f;
     /*  */
     private TipoMovimento TipoMovimentoAtual;
-    [SerializeField] private float baseCoyoteTime = 0f;
+    private Vector2 movimentoFinal;
+    private float defaultAnimSpeed = .5f;
+    //[SerializeField] private float baseCoyoteTime = 0f;
 
     private Interagivel objetoInteragivel;
     public void SetObjetoInteragivel(Interagivel novoObjetoInteragivel)
     {
         objetoInteragivel = novoObjetoInteragivel;
     }
-
-    private float defaultAnimSpeed = .5f;
-
-    private Vector2 movimentoFinal;
-
-    private Animator animator;
-
-    private bool estaInteragindo;
-
+    
     private void Start()
     {
         maiconSprite = this.GetComponent<SpriteRenderer>();
@@ -68,13 +65,19 @@ public class MaiconController : MonoBehaviour
     
     private void Update()
     {
+        if (Input.GetButtonDown("MENU"))
+        {
+            SceneManager.LoadScene("Menu");
+        }
         // setar se maicon ta correndo ou trotando
-        velocidadeAtual = velocidadeBase * (estaCorrendo ? 2f : 1f);
+        velocidadeAtual = velocidadeBase * (estaCorrendo ? 1.5f : 1f);
         // calcular tempo de atraso para pula apos queda de plataforma
         // deteccao de entrada geral
         movimentoHorizontal = Input.GetAxis("HORIZONTAL0");
         movimentoVertical = Input.GetAxis("VERTICAL0");
         estaInteragindo = Input.GetButtonDown("PRETO0");
+        botaoPulo = Input.GetButtonDown("AZUL0");
+        estaCorrendo = Input.GetButton("VERMELHO0");
         // movimento
         if (estaInteragindo && objetoInteragivel != null)
         {
@@ -86,8 +89,7 @@ public class MaiconController : MonoBehaviour
                 // atualizacao da direcao da animacao do maicon
                 maiconSprite.flipX = movimentoHorizontal < 0 ? true : (movimentoHorizontal > 0 ? false : maiconSprite.flipX);
                 // deteccao de entrada do movimento livre
-                estaCorrendo = Input.GetButton("VERMELHO0");
-                if (Input.GetButtonDown("AZUL0") && isGrounded)
+                if (botaoPulo && isGrounded)
                 {
                     puloAgendado = true;
                     puloCancelado = false;
@@ -110,14 +112,35 @@ public class MaiconController : MonoBehaviour
                 // atualizacao do movimento de escalada
                 this.transform.position += new Vector3(0f, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
                 animator.SetFloat("playbackSpeed", Mathf.Abs(movimentoVertical) * defaultAnimSpeed);
+                if (botaoPulo)
+                {
+                    puloAgendado = true;
+                    puloCancelado = false;
+                    animator.Play(Animator.StringToHash("maiconPular"));
+                    InteracaoEscalavelVertical(true);
+                }
                 break;
             case TipoMovimento.EscaladaHorizontal:
                 this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, 0f, 0f) * Time.deltaTime;
                 animator.SetFloat("playbackSpeed", Mathf.Abs(movimentoHorizontal) * defaultAnimSpeed);
+                if (botaoPulo)
+                {
+                    puloAgendado = true;
+                    puloCancelado = false;
+                    animator.Play(Animator.StringToHash("maiconPular"));
+                    InteracaoEscalavelHorizontal(true);
+                }
                 break;
             case TipoMovimento.EscaladaOmnidirecional:
                 this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
                 animator.SetFloat("playbackSpeed", (Mathf.Abs(movimentoHorizontal) + Mathf.Abs(movimentoVertical)) * defaultAnimSpeed);
+                if (botaoPulo)
+                {
+                    puloAgendado = true;
+                    puloCancelado = false;
+                    animator.Play(Animator.StringToHash("maiconPular"));
+                    InteracaoEscalavelOmnidirecional(true);
+                }
                 break;
             default:
                 break;
@@ -138,7 +161,7 @@ public class MaiconController : MonoBehaviour
             movimentoFinal.y -= gravidade / (estaAmortecendo ? constanteDeDepieri : 1f);
             estaAmortecendo = false;
             // adicao de altura no pulo se houver movimento horizontal
-            if (isGrounded && puloAgendado)
+            if (/*isGrounded &&*/ puloAgendado)
             {
                 puloAgendado = false;
                 estaPulando = true;
@@ -169,8 +192,10 @@ public class MaiconController : MonoBehaviour
     
     public bool InteracaoEsconder(bool forceReset = false)
     {
+        Animator lixeiraAnimation = objetoInteragivel.GetComponent<Animator>();
         if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
         {
+            lixeiraAnimation.Play("fecharLixeira");
             TipoMovimentoAtual = TipoMovimento.Escondido;
             corpoMaicon.velocity = Vector2.zero;
             movimentoFinal = Vector2.zero;
@@ -178,6 +203,7 @@ public class MaiconController : MonoBehaviour
             this.transform.position = objetoInteragivel.transform.position;
             return true;
         }
+        lixeiraAnimation.Play("abrirLixeira");
         TipoMovimentoAtual = TipoMovimento.Livre;
         corpoMaicon.velocity = Vector2.zero;
         movimentoFinal = Vector2.zero;
