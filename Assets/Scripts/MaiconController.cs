@@ -3,19 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum MOVIMENTACAO
+public enum TipoMovimento
 {
     Livre,
-    Escalada,
+    EscaladaVertical,
+    EscaladaHorizontal,
+    EscaladaOmnidirecional,
+    Escondido,
 }
 
 public class MaiconController : MonoBehaviour
 {
-    /* UI */
-    private Transform uiReference;
     /* Flags */
     private bool isGrounded = false;
-    private bool interactionAvlb = false;
+    //private bool interactionAvlb = false;
     private bool estaAmortecendo = false;
     /* Input Flags */
     private bool estaCorrendo = false;
@@ -39,9 +40,17 @@ public class MaiconController : MonoBehaviour
     private float movimentoHorizontal;
     private float velocidadeAtual = 0f;
     /*  */
-    private MOVIMENTACAO movimentacaoAtual;
+    private TipoMovimento TipoMovimentoAtual;
     [SerializeField] private float baseCoyoteTime = 0f;
-    private GameObject interactionObject;
+
+    private Interagivel objetoInteragivel;
+    public void SetObjetoInteragivel(Interagivel novoObjetoInteragivel)
+    {
+        objetoInteragivel = novoObjetoInteragivel;
+    }
+
+    private float defaultAnimSpeed = .5f;
+
     private Vector2 movimentoFinal;
 
     private Animator animator;
@@ -50,11 +59,10 @@ public class MaiconController : MonoBehaviour
 
     private void Start()
     {
-        uiReference = Camera.main.transform.GetChild(0);
         maiconSprite = this.GetComponent<SpriteRenderer>();
         corpoMaicon = this.GetComponent<Rigidbody2D>();
-        pehMaicon = this.transform.GetChild(0).GetComponent<BoxCollider2D>();
-        movimentacaoAtual = MOVIMENTACAO.Livre;
+        pehMaicon = this.transform.GetChild(1).GetComponent<BoxCollider2D>();
+        TipoMovimentoAtual = TipoMovimento.Livre;
         animator = this.GetComponent<Animator>();
     }
     
@@ -64,66 +72,61 @@ public class MaiconController : MonoBehaviour
         velocidadeAtual = velocidadeBase * (estaCorrendo ? 2f : 1f);
         // calcular tempo de atraso para pula apos queda de plataforma
         // deteccao de entrada geral
-        movimentoHorizontal = Input.GetAxis("HORIZONTAL1");
-        movimentoVertical = Input.GetAxis("VERTICAL1");
-        estaInteragindo = Input.GetButtonDown("VERDE0");
-        // atualizacao da direcao da animacao do maicon
-        maiconSprite.flipX = movimentoHorizontal < 0 ? true : (movimentoHorizontal > 0 ? false : maiconSprite.flipX);
+        movimentoHorizontal = Input.GetAxis("HORIZONTAL0");
+        movimentoVertical = Input.GetAxis("VERTICAL0");
+        estaInteragindo = Input.GetButtonDown("PRETO0");
         // movimento
-        switch (movimentacaoAtual)
+        if (estaInteragindo && objetoInteragivel != null)
         {
-            case MOVIMENTACAO.Livre:
+            objetoInteragivel.InteracaoOnButtonDown(this);
+        }
+        switch (TipoMovimentoAtual)
+        {
+            case TipoMovimento.Livre:
+                // atualizacao da direcao da animacao do maicon
+                maiconSprite.flipX = movimentoHorizontal < 0 ? true : (movimentoHorizontal > 0 ? false : maiconSprite.flipX);
                 // deteccao de entrada do movimento livre
                 estaCorrendo = Input.GetButton("VERMELHO0");
                 if (Input.GetButtonDown("AZUL0") && isGrounded)
                 {
                     puloAgendado = true;
+                    puloCancelado = false;
                     animator.Play(Animator.StringToHash("maiconPular"));
                 }
                 puloCancelado = Input.GetButtonUp("AZUL0") ? true : puloCancelado;
                 // atualizacao da animacao no movimento livre
-                if (!estaPulando) animator.Play(Animator.StringToHash(movimentoHorizontal != 0 ? "maiconCorrer" : "maiconIdle"));
-                if (!isGrounded) animator.Play(Animator.StringToHash(corpoMaicon.velocity.y < 0 ? "maiconCair" : "maiconPular"));
-                // interacao no movimento livre
-                if (estaInteragindo && interactionAvlb)
+                if (isGrounded && !estaPulando)
                 {
-                    if (interactionObject.CompareTag("Grafiti"))
-                    {
-                        if (Core.GetQuantidadeTinta() > 0 && interactionObject.transform.GetChild(0).gameObject.activeSelf)
-                        {
-                            Core.IncrementaQuantidadeTinta(-1);
-                            interactionObject.transform.GetChild(0).gameObject.SetActive(false); // desliga pichacao
-                            interactionObject.transform.GetChild(1).gameObject.SetActive(true); // liga grafite
-                        }
-                        break;
-                    }
-                    if (interactionObject.CompareTag("Escalavel"))
-                    {
-                        SegurarCalha();
-                        break;
-                    }
-                    if (interactionObject.CompareTag("Rua"))
-                    {
-                        Transform spawn = interactionObject.transform.parent;
-                        int index = spawn.childCount - interactionObject.transform.GetSiblingIndex() - 1;
-                        this.transform.position = new Vector3(spawn.GetChild(index).position.x, this.transform.position.y, 0f);
-                        break;
-                    }
+                    animator.SetFloat("playbackSpeed", Mathf.Max(defaultAnimSpeed, Mathf.Min(1f, Mathf.Abs(corpoMaicon.velocity.x) / aceleracao)));
+                    animator.Play(Animator.StringToHash(movimentoHorizontal != 0 ? "maiconCorrer" : "maiconIdle"));
+                }
+                if (!isGrounded)
+                {
+                    animator.SetFloat("playbackSpeed", defaultAnimSpeed);
+                    animator.Play(Animator.StringToHash(corpoMaicon.velocity.y < 0 ? "maiconCair" : "maiconPular"));
                 }
                 break;
-            case MOVIMENTACAO.Escalada:
+            case TipoMovimento.EscaladaVertical:
                 // atualizacao do movimento de escalada
                 this.transform.position += new Vector3(0f, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
-                // interacao no movimento de escalada
-                if (estaInteragindo && interactionAvlb)
-                    SoltarCalha();
+                animator.SetFloat("playbackSpeed", Mathf.Abs(movimentoVertical) * defaultAnimSpeed);
+                break;
+            case TipoMovimento.EscaladaHorizontal:
+                this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, 0f, 0f) * Time.deltaTime;
+                animator.SetFloat("playbackSpeed", Mathf.Abs(movimentoHorizontal) * defaultAnimSpeed);
+                break;
+            case TipoMovimento.EscaladaOmnidirecional:
+                this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
+                animator.SetFloat("playbackSpeed", (Mathf.Abs(movimentoHorizontal) + Mathf.Abs(movimentoVertical)) * defaultAnimSpeed);
+                break;
+            default:
                 break;
         }
     }
 
     private void FixedUpdate()
     {
-        if (movimentacaoAtual == MOVIMENTACAO.Livre)
+        if (TipoMovimentoAtual == TipoMovimento.Livre)
         {
             /* CALCULO X */
             // x inicial, levando em conta aceleracao
@@ -155,64 +158,107 @@ public class MaiconController : MonoBehaviour
         }
     }
 
-    private void SegurarCalha()
+    /* METODOS DE INTERACAO */
+
+    public bool InteracaoMudarRua()
+    {
+        int index = objetoInteragivel.transform.parent.childCount - objetoInteragivel.transform.GetSiblingIndex() - 1;
+        this.transform.position = new Vector3(objetoInteragivel.transform.parent.GetChild(index).position.x, this.transform.position.y, 0f);
+        return true;
+    }
+    
+    public bool InteracaoEsconder(bool forceReset = false)
+    {
+        if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
+        {
+            TipoMovimentoAtual = TipoMovimento.Escondido;
+            corpoMaicon.velocity = Vector2.zero;
+            movimentoFinal = Vector2.zero;
+            maiconSprite.enabled = false;
+            this.transform.position = objetoInteragivel.transform.position;
+            return true;
+        }
+        TipoMovimentoAtual = TipoMovimento.Livre;
+        corpoMaicon.velocity = Vector2.zero;
+        movimentoFinal = Vector2.zero;
+        maiconSprite.enabled = true;
+        return true;
+    }
+
+    public bool InteracaoGrafite()
+    {
+        SpriteRenderer grafiteSpriteRenderer = objetoInteragivel.GetComponent<SpriteRenderer>();
+        if (Core.GetQuantidadeTinta() > 0 && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0")
+        {
+            /* SPLACEHOLDER */
+            foreach(Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
+            {
+                if (spritePart.name == "GRAFITE_PH_1")
+                {
+                    grafiteSpriteRenderer.sprite = spritePart;
+                    Core.IncrementaQuantidadeTinta(-1);
+                }
+            }
+        }
+        return true;
+    }
+
+    public bool InteracaoEscalavelVertical(bool forceReset = false)
+    {
+        if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
+        {
+            PadraoEscalada();
+            TipoMovimentoAtual = TipoMovimento.EscaladaVertical;
+            this.transform.position = new Vector3(objetoInteragivel.transform.position.x, this.transform.position.y, this.transform.position.z);
+            return true;
+        }
+        PadraoLivre();
+        return true;
+    }
+
+    public bool InteracaoEscalavelHorizontal(bool forceReset = false)
+    {
+        if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
+        {
+            PadraoEscalada();
+            TipoMovimentoAtual = TipoMovimento.EscaladaHorizontal;
+            this.transform.position = new Vector3(this.transform.position.x, objetoInteragivel.transform.position.y, this.transform.position.z);
+            
+            return true;
+        }
+        PadraoLivre();
+        return true;
+    }
+
+    public bool InteracaoEscalavelOmnidirecional(bool forceReset = false)
+    {
+        if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
+        {
+            PadraoEscalada();
+            TipoMovimentoAtual = TipoMovimento.EscaladaOmnidirecional;
+            return true;
+        }
+        PadraoLivre();
+        return true;
+    }
+
+    /* PADROES DE MOVIMENTO */
+
+    private void PadraoEscalada()
     {
         isGrounded = false;
-        movimentacaoAtual = MOVIMENTACAO.Escalada;
+        maiconSprite.flipX = false;
         corpoMaicon.velocity = Vector2.zero;
-        this.transform.position = new Vector3(interactionObject.transform.position.x, this.transform.position.y, this.transform.position.z);
+        movimentoFinal = Vector2.zero;
         pehMaicon.isTrigger = true;
         animator.Play(Animator.StringToHash("maiconEscalar"));
     }
 
-    private void SoltarCalha()
+    private void PadraoLivre()
     {
-        movimentacaoAtual = MOVIMENTACAO.Livre;
+        TipoMovimentoAtual = TipoMovimento.Livre;
         pehMaicon.isTrigger = false;
         animator.Play(Animator.StringToHash(isGrounded ? "maiconIdle" : "maiconCair"));
-    }
-
-    /* TRIGGER */
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Grafiti")) uiReference.GetChild(1).gameObject.SetActive(true);
-        if (collision.gameObject.CompareTag("Collectible"))
-        {
-            GameObject.Destroy(collision.gameObject);
-            Core.IncrementaQuantidadeTinta(1);
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision) // vou mudar isso dps
-    {
-        if (
-            collision.gameObject.CompareTag("Escalavel") ||
-            collision.gameObject.CompareTag("Grafiti") ||
-            collision.gameObject.CompareTag("Rua")
-        )
-        {
-            interactionObject = collision.gameObject;
-            interactionAvlb = true;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision) // vou mudar isso dps
-    {
-        if (collision.gameObject.CompareTag("Escalavel"))
-        {
-            interactionAvlb = false;
-            SoltarCalha();
-        }
-        if (collision.gameObject.CompareTag("Grafiti"))
-        {
-
-            interactionAvlb = false;
-            uiReference.GetChild(1).gameObject.SetActive(false);
-        }
-        if (collision.gameObject.CompareTag("Rua"))
-        {
-            interactionAvlb = false;
-        }
     }
 
     /* COLLIDER */
