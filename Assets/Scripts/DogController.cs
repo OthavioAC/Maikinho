@@ -11,7 +11,7 @@ public class DogController : MonoBehaviour
 
     private void Start()
     {
-        Physics2D.IgnoreCollision(maicon.GetComponent<BoxCollider2D>(), this.GetComponent<BoxCollider2D>(), true);
+        Physics2D.IgnoreCollision(maicon.GetChild(0).GetComponent<BoxCollider2D>(), this.GetComponent<BoxCollider2D>(), true);
     }
 
     private void Update()
