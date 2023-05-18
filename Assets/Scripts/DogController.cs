@@ -11,15 +11,16 @@ public class DogController : MonoBehaviour
 
     private bool estaSeguindo = false;
 
+    private SpriteRenderer spriteDog;
     private Rigidbody2D corpoDog;
-
-    private float rotationFrame = 1f;
-    private float rotationTime = .01f;
+    private Animator dogAnimation;
 
     private void Start()
     {
         Physics2D.IgnoreCollision(maicon.GetChild(1).GetComponent<BoxCollider2D>(), this.GetComponent<BoxCollider2D>(), true);
         corpoDog = this.GetComponent<Rigidbody2D>();
+        dogAnimation = this.GetComponent<Animator>();
+        spriteDog = this.GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -30,24 +31,19 @@ public class DogController : MonoBehaviour
             estaSeguindo = true;
         }
 
-        this.GetComponent<SpriteRenderer>().flipX = currentDistance < 0 ? true : (currentDistance > 0 ? false : this.GetComponent<SpriteRenderer>().flipX);
-        if (estaSeguindo && Math.Abs(currentDistance) > comfortableDistance && this.GetComponent<Rigidbody2D>().velocity.magnitude < dogSpeed)
+        spriteDog.flipX = currentDistance < 0 ? true : (currentDistance > 0 ? false : spriteDog.flipX);
+        if (estaSeguindo && Math.Abs(currentDistance) > comfortableDistance && corpoDog.velocity.magnitude < dogSpeed)
         {
             corpoDog.velocity += new Vector2(currentDistance, 0f).normalized * dogSpeed * Time.deltaTime;
         }
 
-        rotationTime -= Time.deltaTime;
-
-        if(corpoDog.velocity.magnitude != 0f && rotationTime <= 0f)
+        if(corpoDog.velocity.magnitude != 0f)
         {
-            rotationFrame *= -1f;
-            rotationTime = .5f;
-            this.transform.rotation = Quaternion.Euler(0f,0f,15f * rotationFrame);
+            dogAnimation.Play(Animator.StringToHash("doginCarameloRun"));
         }
-
-        if (corpoDog.velocity.magnitude == 0f)
+        else
         {
-            this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            dogAnimation.Play(Animator.StringToHash("doginCarameloIdle"));
         }
     }
 }
