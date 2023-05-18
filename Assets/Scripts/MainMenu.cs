@@ -12,7 +12,7 @@ public class MainMenu : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetButtonDown("MENU"))
         {
             Core.MudarRua("Rua");
         }
