@@ -13,8 +13,27 @@ public enum TipoMovimento
     Escondido,
 }
 
+public enum Animacao
+{
+    Idle,
+    Correr,
+    Equilibrar,
+    Pular,
+    Cair,
+    Aterrissar,
+    Escalar
+}
+
+public enum Skin
+{
+    Default,
+    EasterEgg
+}
+
 public class MaiconController : MonoBehaviour
 {
+    private Skin skinAtual;
+    private float skinTimer = 3f;
     /* Flags */
     private bool isGrounded = false;
     private bool estaAmortecendo = false;
@@ -36,7 +55,7 @@ public class MaiconController : MonoBehaviour
     private Rigidbody2D corpoMaicon;
     private BoxCollider2D pehMaicon;
     private SpriteRenderer maiconSprite;
-    private Animator animator;
+    private Animator maiconAnimator;
     /* Y */
     [SerializeField] private float gravidade = 0f;
     [SerializeField] private float pulo = 0f;
@@ -68,15 +87,25 @@ public class MaiconController : MonoBehaviour
 
     private void Start()
     {
+        skinAtual = Skin.Default;
         maiconSprite = this.GetComponent<SpriteRenderer>();
         corpoMaicon = this.GetComponent<Rigidbody2D>();
         pehMaicon = this.transform.GetChild(1).GetComponent<BoxCollider2D>();
         TipoMovimentoAtual = TipoMovimento.Livre;
-        animator = this.GetComponent<Animator>();
+        maiconAnimator = this.GetComponent<Animator>();
     }
     
     private void Update()
     {
+        if (Input.GetButton("BRANCO0") || Input.GetButton("BRANCO1")) skinTimer -= Time.deltaTime;
+        if (Input.GetButtonUp("BRANCO0") || Input.GetButtonUp("BRANCO1")) skinTimer = 3f;
+
+        if (skinTimer <= 0f)
+        {
+            skinAtual = skinAtual == Skin.Default ? Skin.EasterEgg : Skin.Default;
+            skinTimer = 3f;
+        }
+
         if (Input.GetButtonDown("MENU"))
         {
             SceneManager.LoadScene("Menu");
@@ -117,52 +146,52 @@ public class MaiconController : MonoBehaviour
                 {
                     puloAgendado = true;
                     puloCancelado = false;
-                    animator.Play(Animator.StringToHash("maiconPular"));
+                    TocarAnimacao(Animacao.Pular);
                 }
                 puloCancelado = Input.GetButtonUp("VERMELHO0") || Input.GetButtonUp("VERMELHO1") ? true : puloCancelado;
                 // atualizacao da animacao no movimento livre
                 if (isGrounded && !estaPulando)
                 {
-                    animator.SetFloat("playbackSpeed", Mathf.Max(defaultAnimSpeed, Mathf.Min(1f, Mathf.Abs(corpoMaicon.velocity.x) / aceleracao)));
-                    animator.Play(Animator.StringToHash(!estaEquilibrando ? (movimentoHorizontal != 0 ? "maiconCorrer" : "maiconIdle") : "maiconEquilibrando"));
+                    maiconAnimator.SetFloat("playbackSpeed", Mathf.Max(defaultAnimSpeed, Mathf.Min(1f, Mathf.Abs(corpoMaicon.velocity.x) / aceleracao)));
+                    TocarAnimacao(!estaEquilibrando ? (movimentoHorizontal != 0 ? Animacao.Correr : Animacao.Idle) : Animacao.Equilibrar);
                 }
                 if (!isGrounded)
                 {
-                    animator.SetFloat("playbackSpeed", defaultAnimSpeed);
-                    animator.Play(Animator.StringToHash(corpoMaicon.velocity.y < 0 ? "maiconCair" : "maiconPular"));
+                    maiconAnimator.SetFloat("playbackSpeed", defaultAnimSpeed);
+                    TocarAnimacao(corpoMaicon.velocity.y < 0 ? Animacao.Cair : Animacao.Pular);
                 }
                 break;
             case TipoMovimento.EscaladaVertical:
                 // atualizacao do movimento de escalada
                 this.transform.position += new Vector3(0f, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
-                animator.SetFloat("playbackSpeed", Mathf.Abs(movimentoVertical) * defaultAnimSpeed);
+                maiconAnimator.SetFloat("playbackSpeed", Mathf.Abs(movimentoVertical) * defaultAnimSpeed);
                 if (botaoPulo)
                 {
                     puloAgendado = true;
                     puloCancelado = false;
-                    animator.Play(Animator.StringToHash("maiconPular"));
+                    TocarAnimacao(Animacao.Pular);
                     InteracaoEscalavelVertical(true);
                 }
                 break;
             case TipoMovimento.EscaladaHorizontal:
                 this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, 0f, 0f) * Time.deltaTime;
-                animator.SetFloat("playbackSpeed", Mathf.Abs(movimentoHorizontal) * defaultAnimSpeed);
+                maiconAnimator.SetFloat("playbackSpeed", Mathf.Abs(movimentoHorizontal) * defaultAnimSpeed);
                 if (botaoPulo)
                 {
                     puloAgendado = true;
                     puloCancelado = false;
-                    animator.Play(Animator.StringToHash("maiconPular"));
+                    TocarAnimacao(Animacao.Pular);
                     InteracaoEscalavelHorizontal(true);
                 }
                 break;
             case TipoMovimento.EscaladaOmnidirecional:
                 this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
-                animator.SetFloat("playbackSpeed", (Mathf.Abs(movimentoHorizontal) + Mathf.Abs(movimentoVertical)) * defaultAnimSpeed);
+                maiconAnimator.SetFloat("playbackSpeed", (Mathf.Abs(movimentoHorizontal) + Mathf.Abs(movimentoVertical)) * defaultAnimSpeed);
                 if (botaoPulo)
                 {
                     puloAgendado = true;
                     puloCancelado = false;
-                    animator.Play(Animator.StringToHash("maiconPular"));
+                    TocarAnimacao(Animacao.Pular);
                     InteracaoEscalavelOmnidirecional(true);
                 }
                 break;
@@ -203,6 +232,11 @@ public class MaiconController : MonoBehaviour
             // atualizar velocidade do maicon
             corpoMaicon.velocity = new Vector2(movimentoFinal.x * velocidadeAtual, movimentoFinal.y);
         }
+    }
+
+    public void TocarAnimacao(Animacao animacao)
+    {
+        maiconAnimator.Play(Animator.StringToHash("maicon" + skinAtual.ToString() + animacao.ToString()));
     }
 
     /* METODOS DE INTERACAO */
@@ -301,14 +335,14 @@ public class MaiconController : MonoBehaviour
         corpoMaicon.velocity = Vector2.zero;
         movimentoFinal = Vector2.zero;
         pehMaicon.isTrigger = true;
-        animator.Play(Animator.StringToHash("maiconEscalar"));
+        TocarAnimacao(Animacao.Escalar);
     }
 
     private void PadraoLivre()
     {
         TipoMovimentoAtual = TipoMovimento.Livre;
         pehMaicon.isTrigger = false;
-        animator.Play(Animator.StringToHash(isGrounded ? "maiconIdle" : "maiconCair"));
+        TocarAnimacao(isGrounded ? Animacao.Idle : Animacao.Cair);
     }
 
     /* COLLIDER */
@@ -317,7 +351,7 @@ public class MaiconController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            animator.Play(Animator.StringToHash("maiconAterrissar"));
+            TocarAnimacao(Animacao.Aterrissar);
             estaPulando = false;
         }
     }
