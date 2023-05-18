@@ -25,6 +25,13 @@ public class MaiconController : MonoBehaviour
     private bool estaPulando = false;
     private bool puloCancelado = false;
     private bool estaInteragindo = false;
+    private bool interacaoDisponivel = true;
+
+    private bool estaEquilibrando = false;
+    public void SetEstaEquilibrando(bool newEstaEquilibrando)
+    {
+        estaEquilibrando = newEstaEquilibrando;
+    }
     /* Maicon Components */
     private Rigidbody2D corpoMaicon;
     private BoxCollider2D pehMaicon;
@@ -54,6 +61,11 @@ public class MaiconController : MonoBehaviour
         objetoInteragivel = novoObjetoInteragivel;
     }
     
+    public bool GetSpriteFlipX()
+    {
+        return maiconSprite.flipX;
+    }
+
     private void Start()
     {
         maiconSprite = this.GetComponent<SpriteRenderer>();
@@ -77,14 +89,22 @@ public class MaiconController : MonoBehaviour
         movimentoHorizontal = movimentoHorizontal > 1 ? 1 : (movimentoHorizontal < -1 ? -1 : movimentoHorizontal); // cap
         movimentoVertical = Input.GetAxis("VERTICAL0") + Input.GetAxis("VERTICAL1");
         movimentoVertical = movimentoVertical > 1 ? 1 : (movimentoVertical < -1 ? -1 : movimentoVertical); // cap
-        estaInteragindo = Input.GetButtonDown("VERDE0") || Input.GetButtonDown("VERDE1");
+        estaInteragindo = Input.GetButton("VERDE0") || Input.GetButton("VERDE1");
+        interacaoDisponivel = Input.GetButtonUp("VERDE0") || Input.GetButtonUp("VERDE1") ? true : interacaoDisponivel;
         botaoPulo = Input.GetButtonDown("VERMELHO0") || Input.GetButtonDown("VERMELHO1");
         estaCorrendo = Input.GetButton("PRETO0") || Input.GetButton("PRETO1");
         // interacao
         if (objetoInteragivel != null)
         {
-            if (estaInteragindo || ((Input.GetButtonDown("VERTICAL0") || Input.GetButtonDown("VERTICAL1")) && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.Portal))
+            if (objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.Portal && (Input.GetButtonDown("VERTICAL0") || Input.GetButtonDown("VERTICAL1")))
+            {
                 objetoInteragivel.InteracaoOnButtonDown(this);
+            }
+            if (interacaoDisponivel && estaInteragindo)
+            {
+                interacaoDisponivel = false;
+                objetoInteragivel.InteracaoOnButtonDown(this);
+            }
         }
         // movimento
         switch (TipoMovimentoAtual)
@@ -104,7 +124,7 @@ public class MaiconController : MonoBehaviour
                 if (isGrounded && !estaPulando)
                 {
                     animator.SetFloat("playbackSpeed", Mathf.Max(defaultAnimSpeed, Mathf.Min(1f, Mathf.Abs(corpoMaicon.velocity.x) / aceleracao)));
-                    animator.Play(Animator.StringToHash(movimentoHorizontal != 0 ? "maiconCorrer" : "maiconIdle"));
+                    animator.Play(Animator.StringToHash(!estaEquilibrando ? (movimentoHorizontal != 0 ? "maiconCorrer" : "maiconIdle") : "maiconEquilibrando"));
                 }
                 if (!isGrounded)
                 {
