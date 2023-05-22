@@ -15,6 +15,10 @@ public class PolicialColliderController : MonoBehaviour
     /* AKI VAO OS ONTRIGGER E ONCOLLISION PRA DETECTAR CONTATO COM CASAS E COM O MAIKIN */
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            copAI.isGrounded = true;
+        }
         if (collision.gameObject.CompareTag("Player"))
         {
             Debug.Log("PegouMaikin");
@@ -30,6 +34,7 @@ public class PolicialColliderController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
+            copAI.isGrounded = false;
             if (this.transform.position.y > collision.transform.position.y)
             {
                 copCollider.isTrigger = false;

@@ -57,15 +57,14 @@ public class MaiconController : MonoBehaviour
     private SpriteRenderer maiconSprite;
     private Animator maiconAnimator;
     /* Y */
-    [SerializeField] private float gravidade = 0f;
-    [SerializeField] private float pulo = 0f;
-    [SerializeField] private float constanteDeDepieri = 0f; // usada para amortecer a queda
-    [SerializeField] private float velocidadeDeEscalada = 0f;
+    [SerializeField] private float pulo = 0f; // 30
+    [SerializeField] private float constanteDeDepieri = 0f; // 1 - usada para amortecer a queda
+    [SerializeField] private float velocidadeDeEscalada = 0f; // 7
     private float movimentoVertical;
     /* X */
-    [SerializeField] private float velocidadeBase = 0f;
-    [SerializeField] private float aceleracao = 0f;
-    [SerializeField] private float multiplicadorAceleracao = 0f;
+    [SerializeField] private float velocidadeBase = 0f; // 5
+    [SerializeField] private float aceleracao = 0f; // 1
+    [SerializeField] private float multiplicadorAceleracao = 0f; // 3
     private float movimentoHorizontal;
     private float velocidadeAtual = 0f;
     /*  */
@@ -225,12 +224,13 @@ public class MaiconController : MonoBehaviour
         {
             /* CALCULO X */
             // x inicial, levando em conta aceleracao
-            movimentoFinal.x = movimentoFinal.x + ((movimentoFinal.x < movimentoHorizontal * multiplicadorAceleracao) ? aceleracao : ((movimentoFinal.x > movimentoHorizontal * multiplicadorAceleracao) ? -aceleracao : -(movimentoHorizontal / 10f))) + (movimentoHorizontal / 10f);
+            // movimentoFinal.x = movimentoFinal.x + ((movimentoFinal.x < movimentoHorizontal * multiplicadorAceleracao) ? aceleracao : ((movimentoFinal.x > movimentoHorizontal * multiplicadorAceleracao) ? -aceleracao : -(movimentoHorizontal / 10f))) + (movimentoHorizontal / 10f);
+            movimentoFinal.x = Core.AceleracaoDeDepieri(movimentoFinal.x, movimentoHorizontal, aceleracao, multiplicadorAceleracao);
             // cap aceleracao
             movimentoFinal.x = movimentoFinal.x > -aceleracao && movimentoFinal.x < aceleracao ? 0 : movimentoFinal.x;
             /* CALCULO Y */
             // y inicial, levando em conta amortecimento
-            movimentoFinal.y -= gravidade / (estaAmortecendo ? constanteDeDepieri : 1f);
+            movimentoFinal.y -= Core.gravidade / (estaAmortecendo ? constanteDeDepieri : 1f);
             estaAmortecendo = false;
             // adicao de altura no pulo se houver movimento horizontal
             if (/*isGrounded &&*/ puloAgendado)
@@ -246,7 +246,7 @@ public class MaiconController : MonoBehaviour
                 estaAmortecendo = true;
                 movimentoFinal.y /= 2f;
             }
-            // ignorar gravidade se nao houver diferencial vertical
+            // ignorar Core.gravidade se nao houver diferencial vertical
             movimentoFinal.y = isGrounded && movimentoFinal.y <= 0 ? -0.01f : movimentoFinal.y;
             // atualizar velocidade do maicon
             corpoMaicon.velocity = new Vector2(movimentoFinal.x * velocidadeAtual, movimentoFinal.y);

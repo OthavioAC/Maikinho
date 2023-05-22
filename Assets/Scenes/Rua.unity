@@ -351,7 +351,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eae86a1e7186124449a5002f4f1c060d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gravidade: 4
   pulo: 30
   constanteDeDepieri: 1
   velocidadeDeEscalada: 7
@@ -4841,8 +4840,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maicon: {fileID: 76254843}
-  dogSpeed: 30
-  comfortableDistance: 5
+  dogSpeed: 6
+  comfortableDistance: 7
 --- !u!61 &1333762725
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15265,7 +15264,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 1
   m_AngularDrag: 0
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -15336,6 +15335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maicon: {fileID: 76254843}
+  isGrounded: 0
 --- !u!1 &2090186210
 GameObject:
   m_ObjectHideFlags: 0

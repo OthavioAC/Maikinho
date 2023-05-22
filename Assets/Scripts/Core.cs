@@ -16,6 +16,9 @@ public enum CorTinta
 
 public static class Core
 {
+    // constantes
+    public static float gravidade = 4f;
+
     // amoeda
     private static int quantidadeAmoeda = 0;
 
@@ -159,5 +162,10 @@ public static class Core
         quantidadeTinta[(int)CorTinta.Magenta] = 0;
         quantidadeAmoeda = 0;
         pontosDeVida = 0;
+    }
+
+    public static float AceleracaoDeDepieri(float movimentoHorizontalAtual, float direcaoHorizontal, float aceleracao, float multiplicadorAceleracao)
+    {
+        return movimentoHorizontalAtual + ((movimentoHorizontalAtual < direcaoHorizontal * multiplicadorAceleracao) ? aceleracao : ((movimentoHorizontalAtual > direcaoHorizontal * multiplicadorAceleracao) ? -aceleracao : -(direcaoHorizontal / 10f))) + (direcaoHorizontal / 10f);
     }
 }

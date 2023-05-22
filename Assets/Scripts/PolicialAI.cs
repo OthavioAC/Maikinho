@@ -10,31 +10,34 @@ public enum PolicialAIState
     Apreensao,
 }
 
-public class PolicialAI : MonoBehaviour
+public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que organizar depois
 {
     [SerializeField] Transform maicon;
     private SpriteRenderer copSprite;
-    private Rigidbody2D copBody;
+    private Rigidbody2D corpoPolicial;
     private BoxCollider2D copCollider;
     private PolicialAIState currentAIState;
-    private TipoMovimento currentMovimento;
+    private TipoMovimento TipoMovimentoAtual;
     // ph
     public void SetMovimento(TipoMovimento novoTipo)
     {
-        currentMovimento = novoTipo;
+        TipoMovimentoAtual = novoTipo;
         switch (novoTipo)
         {
             case TipoMovimento.Livre:
-                copBody.gravityScale = 1;
+                corpoPolicial.gravityScale = 1;
                 break;
             case TipoMovimento.EscaladaOmnidirecional:
-                copBody.gravityScale = 0;
+                corpoPolicial.gravityScale = 0;
                 break;
         }
     }
 
-    private float copSpeed = 20f; // ph -> [4 - 6]
-    private float copClimbSpeed = 15f; // ph -> [6 - 8]
+    private float copSpeed = 4f; // 4 - 6
+    private float copClimbSpeed = 6f; // 6 - 8
+
+    private float aceleracao = 1f; // 1
+    private float multiplicadorAceleracao = 3f; // 3
 
     private Transform target;
 
@@ -57,15 +60,23 @@ public class PolicialAI : MonoBehaviour
         return target;
     }
 
+    Vector2 currentDirection;
+    Vector2 movimentoFinal;
+
+    public bool isGrounded = true;
+
     private void Start()
     {
         copCollider = this.transform.GetChild(0).GetComponent<BoxCollider2D>();
         Physics2D.IgnoreCollision(maicon.GetChild(1).GetComponent<BoxCollider2D>(), copCollider, true); // PH, usar PhysicsLayer dps
-        copBody = GetComponent<Rigidbody2D>();
+        corpoPolicial = GetComponent<Rigidbody2D>();
         copSprite = this.GetComponent<SpriteRenderer>();
         currentAIState = PolicialAIState.Idle;
-        currentMovimento = TipoMovimento.Livre;
+        TipoMovimentoAtual = TipoMovimento.Livre;
+        currentDirection = this.transform.position;
+        movimentoFinal = Vector2.zero;
     }
+
 
     private void Update()
     {
@@ -82,23 +93,18 @@ public class PolicialAI : MonoBehaviour
             case PolicialAIState.Busca:
                 if (target != null)
                 {
-                    Vector2 currentDirection = target.position - this.transform.position;
-                    if (currentMovimento == TipoMovimento.Livre)
+                    currentDirection = target.position - this.transform.position;
+                    if (TipoMovimentoAtual == TipoMovimento.Livre)
                     {
-                        float currentDistance = currentDirection.x;
-                        copSprite.flipX = currentDistance < 0 ? true : (currentDistance > 0 ? false : copSprite.flipX);
-                        if (Mathf.Abs(currentDistance) > 3f && copBody.velocity.magnitude < copSpeed)
-                        {
-                            copBody.velocity += new Vector2(currentDistance, 0f).normalized * copSpeed * Time.deltaTime;
-                        }
+                        copSprite.flipX = currentDirection.x < 0 ? true : (currentDirection.x > 0 ? false : copSprite.flipX);
 
-                        if(escalavelDisponivel != null && Mathf.Abs(currentDistance) < 3f && currentDirection.y > 2f)
+                        if (escalavelDisponivel != null && Mathf.Abs(currentDirection.x) < 3f && currentDirection.y > 2f)
                         {
                             this.SetMovimento(TipoMovimento.EscaladaOmnidirecional);
                             copCollider.isTrigger = true;
                         }
                     }
-                    if (currentMovimento == TipoMovimento.EscaladaOmnidirecional)
+                    if (TipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
                     {
                         this.transform.position += (Vector3)(currentDirection + Vector2.up).normalized * copClimbSpeed * Time.deltaTime;
                     }
@@ -107,6 +113,34 @@ public class PolicialAI : MonoBehaviour
             case PolicialAIState.Apreensao:
                 break;
         }
+    }
+
+    private void FixedUpdate()
+    {
+        switch (currentAIState)
+        {
+            case PolicialAIState.Busca:
+                if (TipoMovimentoAtual == TipoMovimento.Livre)
+                {
+                    /* CALCULO X */
+                    // x inicial, levando em conta aceleracao
+                    movimentoFinal.x = Core.AceleracaoDeDepieri(movimentoFinal.x, currentDirection.normalized.x, aceleracao, multiplicadorAceleracao);
+                    // cap aceleracao
+                    movimentoFinal.x = movimentoFinal.x > -aceleracao && movimentoFinal.x < aceleracao ? 0 : movimentoFinal.x;
+                    /* CALCULO Y */
+                    // y inicial, levando em conta amortecimento
+                    movimentoFinal.y -= Core.gravidade;
+                    // ignorar gravidade se nao houver diferencial vertical
+                    movimentoFinal.y = isGrounded && movimentoFinal.y <= 0 ? -0.01f : movimentoFinal.y;
+                    // atualizar velocidade do policial
+                    if (Mathf.Abs(currentDirection.x) > 3f)
+                    {
+                        corpoPolicial.velocity = new Vector2(movimentoFinal.x * copSpeed, movimentoFinal.y);
+                    }
+                }
+                break;
+        }
+        
     }
 
     public void SetState(PolicialAIState newState)
