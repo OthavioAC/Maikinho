@@ -6,11 +6,13 @@ public class PolicialLanternaController : MonoBehaviour
 {
     SpriteRenderer copSprite;
     SpriteRenderer lanternaSprite;
+    PolicialAI policialAI;
 
     private void Start()
     {
         copSprite = this.transform.parent.GetComponent<SpriteRenderer>();
         lanternaSprite = this.GetComponent<SpriteRenderer>();
+        policialAI = this.GetComponentInParent<PolicialAI>();
     }
 
     private void Update()
@@ -24,7 +26,20 @@ public class PolicialLanternaController : MonoBehaviour
         {
             if ((!lanternaSprite.flipX && collision.transform.position.x > this.transform.position.x) || (lanternaSprite.flipX && collision.transform.position.x < this.transform.position.x))
             {
-                Debug.Log("maikin on");
+                policialAI.SetTarget(collision.transform);
+                policialAI.SetState(PolicialAIState.Busca);
+            }
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player") && policialAI.GetTarget() == null)
+        {
+            if ((!lanternaSprite.flipX && collision.transform.position.x > this.transform.position.x) || (lanternaSprite.flipX && collision.transform.position.x < this.transform.position.x))
+            {
+                policialAI.SetTarget(collision.transform);
+                policialAI.SetState(PolicialAIState.Busca);
             }
         }
     }
@@ -33,10 +48,8 @@ public class PolicialLanternaController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            if ((!lanternaSprite.flipX && collision.transform.position.x > this.transform.position.x) || (lanternaSprite.flipX && collision.transform.position.x < this.transform.position.x))
-            {
-                Debug.Log("maikin off");
-            }
+            policialAI.SetTarget(null);
+            policialAI.SetState(PolicialAIState.Idle);
         }
     }
 }
