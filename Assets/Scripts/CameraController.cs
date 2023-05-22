@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float verticalDistance = 0;
 
     [SerializeField] private float maxWorldHeight = 0;
-    [SerializeField] private float minWorldHeight = 0; // 3
+    [SerializeField] private float minWorldHeight = 3f;
 
     private (float, float)[] streetBounds =
     {

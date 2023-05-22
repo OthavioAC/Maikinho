@@ -4,25 +4,23 @@ using UnityEngine;
 
 public class ParalaxController : MonoBehaviour
 {
-    [SerializeField] private float fixedHeight = 0;
-    [SerializeField] private float paralaxSpeed = 0;
+    [SerializeField] private float alturaFixa = 0;
+    [SerializeField] private float velocidadeParalax = 0;
 
-    Vector2 newPosition;
-    Vector2 newLocal;
-
-    Vector3 positionBuffer;
+    Vector2 novaPosicao;
+    Vector3 bufferPosicao;
 
     private void Start()
     {
-        positionBuffer = Camera.main.transform.position;
+        bufferPosicao = Camera.main.transform.position;
     }
 
     private void Update()
     {
-        newPosition = this.transform.position;
-        newPosition.x += (positionBuffer.x - Camera.main.transform.position.x) * paralaxSpeed;
-        newPosition.y = fixedHeight;
-        this.transform.position = newPosition;
+        novaPosicao = this.transform.position;
+        novaPosicao.x += (bufferPosicao.x - Camera.main.transform.position.x) * velocidadeParalax;
+        novaPosicao.y = alturaFixa;
+        this.transform.position = novaPosicao;
         
         if (this.transform.localPosition.x > 30)
         {
@@ -33,6 +31,6 @@ public class ParalaxController : MonoBehaviour
             this.transform.localPosition += Vector3.right * 51;
         }
 
-        positionBuffer = Camera.main.transform.position;
+        bufferPosicao = Camera.main.transform.position;
     }
 }

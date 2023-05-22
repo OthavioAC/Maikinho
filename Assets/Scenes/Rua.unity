@@ -4298,8 +4298,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c47a42448816545459278fbb8bc5912f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fixedHeight: 13
-  paralaxSpeed: 1.5
+  alturaFixa: 10
+  velocidadeParalax: 0
 --- !u!1 &1174042973
 GameObject:
   m_ObjectHideFlags: 0
@@ -9194,8 +9194,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c47a42448816545459278fbb8bc5912f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fixedHeight: 18
-  paralaxSpeed: 0.5
+  alturaFixa: 15
+  velocidadeParalax: 0
 --- !u!1 &1817342819
 GameObject:
   m_ObjectHideFlags: 0
@@ -15335,6 +15335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maicon: {fileID: 76254843}
+  tipoPolicial: 0
   isGrounded: 0
 --- !u!1 &2090186210
 GameObject:

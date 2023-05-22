@@ -10,18 +10,43 @@ public enum PolicialAIState
     Apreensao,
 }
 
+public enum TipoPolicial
+{
+    Frakin,
+    Fortin
+}
+
 public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que organizar depois
 {
+    /* Propriedades */
     [SerializeField] Transform maicon;
-    private SpriteRenderer copSprite;
+    private SpriteRenderer spritePolicial;
     private Rigidbody2D corpoPolicial;
-    private BoxCollider2D copCollider;
-    private PolicialAIState currentAIState;
-    private TipoMovimento TipoMovimentoAtual;
-    // ph
+    private BoxCollider2D colisorPolicial;
+    private PolicialAIState estadoAtualDaIA;
+    private TipoMovimento tipoMovimentoAtual;
+
+    private float velocidadePolicial; // 4 - 6
+    private float velocidadeEscaladaPolicial; // 6 - 8
+
+    private float aceleracao = 1f;
+    private float multiplicadorAceleracao = 3f;
+
+    private Transform objetoAlvo;
+
+    private float cooldownVirar = 2.5f;
+
+    private GameObject escalavelDisponivel = null; // mudar pra lista dps... ou bool, mas acho que lista
+
+    Vector2 currentDirection;
+    Vector2 movimentoFinal;
+
+    [SerializeField] private TipoPolicial tipoPolicial;
+
+    public bool isGrounded = true;
     public void SetMovimento(TipoMovimento novoTipo)
     {
-        TipoMovimentoAtual = novoTipo;
+        tipoMovimentoAtual = novoTipo;
         switch (novoTipo)
         {
             case TipoMovimento.Livre:
@@ -33,80 +58,70 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
         }
     }
 
-    private float copSpeed = 4f; // 4 - 6
-    private float copClimbSpeed = 6f; // 6 - 8
-
-    private float aceleracao = 1f; // 1
-    private float multiplicadorAceleracao = 3f; // 3
-
-    private Transform target;
-
-    private float phTimer = 2f;
-
-    private GameObject escalavelDisponivel = null; // mudar pra lista dps... ou bool, mas acho que lista
-
     public void SetEscalavel(GameObject newEscalavel)
     {
         escalavelDisponivel = newEscalavel;
     }
 
-    public void SetTarget(Transform newTarget)
+    public void SetObjetoAlvo(Transform newobjetoAlvo)
     {
-        target = newTarget;
+        objetoAlvo = newobjetoAlvo;
     }
 
-    public Transform GetTarget()
+    public Transform GetObjetoAlvo()
     {
-        return target;
+        return objetoAlvo;
     }
 
-    Vector2 currentDirection;
-    Vector2 movimentoFinal;
-
-    public bool isGrounded = true;
+    public void SetState(PolicialAIState newState)
+    {
+        this.estadoAtualDaIA = newState;
+    }
 
     private void Start()
     {
-        copCollider = this.transform.GetChild(0).GetComponent<BoxCollider2D>();
-        Physics2D.IgnoreCollision(maicon.GetChild(1).GetComponent<BoxCollider2D>(), copCollider, true); // PH, usar PhysicsLayer dps
+        colisorPolicial = this.transform.GetChild(0).GetComponent<BoxCollider2D>();
+        Physics2D.IgnoreCollision(maicon.GetChild(1).GetComponent<BoxCollider2D>(), colisorPolicial, true); // PH, usar PhysicsLayer dps
         corpoPolicial = GetComponent<Rigidbody2D>();
-        copSprite = this.GetComponent<SpriteRenderer>();
-        currentAIState = PolicialAIState.Idle;
-        TipoMovimentoAtual = TipoMovimento.Livre;
+        spritePolicial = this.GetComponent<SpriteRenderer>();
+        estadoAtualDaIA = PolicialAIState.Idle;
+        tipoMovimentoAtual = TipoMovimento.Livre;
         currentDirection = this.transform.position;
         movimentoFinal = Vector2.zero;
-    }
 
+        velocidadePolicial = tipoPolicial == TipoPolicial.Frakin ? 4 : 6;
+        velocidadeEscaladaPolicial = tipoPolicial == TipoPolicial.Frakin ? 6 : 8;
+    }
 
     private void Update()
     {
-        switch (currentAIState)
+        switch (estadoAtualDaIA)
         {
             case PolicialAIState.Idle:
-                phTimer -= Time.deltaTime;
-                if (phTimer <= 0)
+                cooldownVirar -= Time.deltaTime;
+                if (cooldownVirar <= 0)
                 {
-                    copSprite.flipX = !copSprite.flipX;
-                    phTimer = 2f;
+                    spritePolicial.flipX = !spritePolicial.flipX;
+                    cooldownVirar = 2f;
                 }
                 break;
             case PolicialAIState.Busca:
-                if (target != null)
+                if (objetoAlvo != null)
                 {
-                    currentDirection = target.position - this.transform.position;
-                    if (TipoMovimentoAtual == TipoMovimento.Livre)
+                    currentDirection = objetoAlvo.position - this.transform.position;
+                    if (tipoMovimentoAtual == TipoMovimento.Livre)
                     {
-                        copSprite.flipX = currentDirection.x < 0 ? true : (currentDirection.x > 0 ? false : copSprite.flipX);
+                        spritePolicial.flipX = currentDirection.x < 0 ? true : (currentDirection.x > 0 ? false : spritePolicial.flipX);
 
                         if (escalavelDisponivel != null && Mathf.Abs(currentDirection.x) < 3f && currentDirection.y > 2f)
                         {
                             this.SetMovimento(TipoMovimento.EscaladaOmnidirecional);
-                            copCollider.isTrigger = true;
+                            colisorPolicial.isTrigger = true;
                         }
                     }
-                    if (TipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
+                    if (tipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
                     {
-                        this.transform.position += (Vector3)(currentDirection + Vector2.up).normalized * copClimbSpeed * Time.deltaTime;
+                        this.transform.position += (Vector3)(currentDirection + Vector2.up).normalized * velocidadeEscaladaPolicial * Time.deltaTime;
                     }
                 }
                 break;
@@ -117,10 +132,10 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
 
     private void FixedUpdate()
     {
-        switch (currentAIState)
+        switch (estadoAtualDaIA)
         {
             case PolicialAIState.Busca:
-                if (TipoMovimentoAtual == TipoMovimento.Livre)
+                if (tipoMovimentoAtual == TipoMovimento.Livre)
                 {
                     /* CALCULO X */
                     // x inicial, levando em conta aceleracao
@@ -129,22 +144,17 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
                     movimentoFinal.x = movimentoFinal.x > -aceleracao && movimentoFinal.x < aceleracao ? 0 : movimentoFinal.x;
                     /* CALCULO Y */
                     // y inicial, levando em conta amortecimento
-                    movimentoFinal.y -= Core.gravidade;
+                    movimentoFinal.y -= Core.GetGravidade();
                     // ignorar gravidade se nao houver diferencial vertical
                     movimentoFinal.y = isGrounded && movimentoFinal.y <= 0 ? -0.01f : movimentoFinal.y;
                     // atualizar velocidade do policial
                     if (Mathf.Abs(currentDirection.x) > 3f)
                     {
-                        corpoPolicial.velocity = new Vector2(movimentoFinal.x * copSpeed, movimentoFinal.y);
+                        corpoPolicial.velocity = new Vector2(movimentoFinal.x * velocidadePolicial, movimentoFinal.y);
                     }
                 }
                 break;
         }
         
-    }
-
-    public void SetState(PolicialAIState newState)
-    {
-        this.currentAIState = newState;
     }
 }

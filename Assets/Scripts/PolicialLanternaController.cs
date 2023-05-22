@@ -4,29 +4,29 @@ using UnityEngine;
 
 public class PolicialLanternaController : MonoBehaviour
 {
-    SpriteRenderer copSprite;
-    SpriteRenderer lanternaSprite;
+    SpriteRenderer spritePolicial;
+    SpriteRenderer spriteLanterna;
     PolicialAI policialAI;
 
     private void Start()
     {
-        copSprite = this.transform.parent.GetComponent<SpriteRenderer>();
-        lanternaSprite = this.GetComponent<SpriteRenderer>();
+        spritePolicial = this.transform.parent.GetComponent<SpriteRenderer>();
+        spriteLanterna = this.GetComponent<SpriteRenderer>();
         policialAI = this.GetComponentInParent<PolicialAI>();
     }
 
     private void Update()
     {
-        lanternaSprite.flipX = copSprite.flipX;
+        spriteLanterna.flipX = spritePolicial.flipX;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            if ((!lanternaSprite.flipX && collision.transform.position.x > this.transform.position.x) || (lanternaSprite.flipX && collision.transform.position.x < this.transform.position.x))
+            if ((!spriteLanterna.flipX && collision.transform.position.x > this.transform.position.x) || (spriteLanterna.flipX && collision.transform.position.x < this.transform.position.x))
             {
-                policialAI.SetTarget(collision.transform);
+                policialAI.SetObjetoAlvo(collision.transform);
                 policialAI.SetState(PolicialAIState.Busca);
             }
         }
@@ -34,11 +34,11 @@ public class PolicialLanternaController : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Player") && policialAI.GetTarget() == null)
+        if (collision.gameObject.CompareTag("Player") && policialAI.GetObjetoAlvo() == null)
         {
-            if ((!lanternaSprite.flipX && collision.transform.position.x > this.transform.position.x) || (lanternaSprite.flipX && collision.transform.position.x < this.transform.position.x))
+            if ((!spriteLanterna.flipX && collision.transform.position.x > this.transform.position.x) || (spriteLanterna.flipX && collision.transform.position.x < this.transform.position.x))
             {
-                policialAI.SetTarget(collision.transform);
+                policialAI.SetObjetoAlvo(collision.transform);
                 policialAI.SetState(PolicialAIState.Busca);
             }
         }
@@ -48,7 +48,7 @@ public class PolicialLanternaController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            policialAI.SetTarget(null);
+            policialAI.SetObjetoAlvo(null);
             policialAI.SetState(PolicialAIState.Idle);
         }
     }

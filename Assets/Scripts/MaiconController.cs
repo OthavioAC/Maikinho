@@ -56,15 +56,15 @@ public class MaiconController : MonoBehaviour
     private BoxCollider2D pehMaicon;
     private SpriteRenderer maiconSprite;
     private Animator maiconAnimator;
-    /* Y */
-    [SerializeField] private float pulo = 0f; // 30
-    [SerializeField] private float constanteDeDepieri = 0f; // 1 - usada para amortecer a queda
-    [SerializeField] private float velocidadeDeEscalada = 0f; // 7
+    /* Movimento Vertical */
+    [SerializeField] private float pulo = 30f;
+    [SerializeField] private float constanteDeDepieri = 1f; //usada para amortecer a queda
+    [SerializeField] private float velocidadeDeEscalada = 7f;
     private float movimentoVertical;
-    /* X */
-    [SerializeField] private float velocidadeBase = 0f; // 5
-    [SerializeField] private float aceleracao = 0f; // 1
-    [SerializeField] private float multiplicadorAceleracao = 0f; // 3
+    /* Movimento Horizontal */
+    [SerializeField] private float velocidadeBase = 5f;
+    [SerializeField] private float aceleracao = 1f;
+    [SerializeField] private float multiplicadorAceleracao = 3f;
     private float movimentoHorizontal;
     private float velocidadeAtual = 0f;
     /*  */
@@ -73,7 +73,8 @@ public class MaiconController : MonoBehaviour
     private float defaultAnimSpeed = .5f;
     //[SerializeField] private float baseCoyoteTime = 0f;
 
-    private Interagivel objetoInteragivel;
+    private Interagivel objetoInteragivel; // mudar pra lista depois pra multiplas interacoes
+
     public void SetObjetoInteragivel(Interagivel novoObjetoInteragivel)
     {
         objetoInteragivel = novoObjetoInteragivel;
@@ -230,7 +231,7 @@ public class MaiconController : MonoBehaviour
             movimentoFinal.x = movimentoFinal.x > -aceleracao && movimentoFinal.x < aceleracao ? 0 : movimentoFinal.x;
             /* CALCULO Y */
             // y inicial, levando em conta amortecimento
-            movimentoFinal.y -= Core.gravidade / (estaAmortecendo ? constanteDeDepieri : 1f);
+            movimentoFinal.y -= Core.GetGravidade() / (estaAmortecendo ? constanteDeDepieri : 1f);
             estaAmortecendo = false;
             // adicao de altura no pulo se houver movimento horizontal
             if (/*isGrounded &&*/ puloAgendado)
@@ -262,9 +263,9 @@ public class MaiconController : MonoBehaviour
 
     public bool InteracaoBarzin()
     {
-        if (Core.GetAmoeda() >= 5 && Core.GetPontosDeVida() < 6)
+        if (Core.GetQuantidadeMoeda() >= 5 && Core.GetPontosDeVida() < 6)
         {
-            Core.IncrementaAmoeda(-5);
+            Core.IncrementaQuantidadeMoeda(-5);
             Core.IncrementaPontosDeVida(1);
         } 
         return true;
@@ -282,7 +283,7 @@ public class MaiconController : MonoBehaviour
         Animator lixeiraAnimation = objetoInteragivel.GetComponent<Animator>();
         if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
         {
-            Core.IncrementaAmoeda(1);
+            Core.IncrementaQuantidadeMoeda(1);
             lixeiraAnimation.Play("fecharLixeira");
             TipoMovimentoAtual = TipoMovimento.Escondido;
             corpoMaicon.velocity = Vector2.zero;

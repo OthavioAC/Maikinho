@@ -17,14 +17,14 @@ public enum TipoInteragivel
 
 public class Interagivel : MonoBehaviour
 {
+    /* Propriedades */
     [SerializeField] private TipoInteragivel tipoInteragivel;
+    [SerializeField] private CorTinta corTinta;
 
     public TipoInteragivel GetTipoInteragivel()
     {
         return tipoInteragivel;
     }
-
-    [SerializeField] private CorTinta corTinta;
 
     public CorTinta GetCorTinta()
     {
