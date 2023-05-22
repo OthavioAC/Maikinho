@@ -7,7 +7,8 @@ public enum TipoInteragivel
     EscalavelVertical,
     EscalavelHorizontal,
     EscalavelOmnidirecional,
-    Coletavel,
+    Tinta,
+    Moeda,
     Grafitavel,
     Portal,
     Esconderijo,
@@ -23,12 +24,44 @@ public class Interagivel : MonoBehaviour
         return tipoInteragivel;
     }
 
+    [SerializeField] private CorTinta corTinta;
+
+    public CorTinta GetCorTinta()
+    {
+        return corTinta;
+    }
+
+    private void Start()
+    {
+        if (tipoInteragivel == TipoInteragivel.Tinta)
+        {
+            switch(corTinta)
+            { // mudar sprite aki
+                case CorTinta.Vermelho:
+                    break;
+                case CorTinta.Amarelo:
+                    break;
+                case CorTinta.Verde:
+                    this.GetComponent<SpriteRenderer>().color = Color.green; // placeholder
+                    break;
+                case CorTinta.Ciano:
+                    break;
+                case CorTinta.Azul:
+                    break;
+                case CorTinta.Magenta:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     public bool InteracaoOnTriggerEnter(MaiconController maicon)
     {
         switch (tipoInteragivel)
         {
-            case TipoInteragivel.Coletavel:
-                Core.IncrementaQuantidadeTinta(1);
+            case TipoInteragivel.Tinta:
+                Core.IncrementaQuantidadeTinta(corTinta, 1);
                 GameObject.Destroy(this.gameObject);
                 return true;
             case TipoInteragivel.Grafitavel: return Core.SetIndicadorGrafite(true);

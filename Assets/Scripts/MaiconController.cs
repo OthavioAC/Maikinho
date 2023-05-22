@@ -302,7 +302,7 @@ public class MaiconController : MonoBehaviour
     public bool InteracaoGrafite()
     {
         SpriteRenderer grafiteSpriteRenderer = objetoInteragivel.GetComponent<SpriteRenderer>();
-        if (Core.GetQuantidadeTinta() > 0 && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0")
+        if (Core.GetQuantidadeTinta(CorTinta.Verde) > 0 && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0")
         {
             /* SPLACEHOLDER */
             foreach(Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
@@ -310,7 +310,7 @@ public class MaiconController : MonoBehaviour
                 if (spritePart.name == "GRAFITE_PH_1")
                 {
                     grafiteSpriteRenderer.sprite = spritePart;
-                    Core.IncrementaQuantidadeTinta(-1);
+                    Core.IncrementaQuantidadeTinta(CorTinta.Verde, -1);
                 }
             }
         }

@@ -4,11 +4,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public enum CorTinta // brainstorming
+public enum CorTinta
 {
     Vermelho,
+    Amarelo,
     Verde,
+    Ciano,
     Azul,
+    Magenta,
 }
 
 public static class Core
@@ -24,13 +27,13 @@ public static class Core
     public static void SetAmoeda(int novaQuantidade)
     {
         quantidadeAmoeda = novaQuantidade;
-        UpdateAmoeda();
+        UpdateDisplayEconomia();
     }
 
     public static void IncrementaAmoeda(int incremento)
     {
         quantidadeAmoeda += incremento;
-        UpdateAmoeda();
+        UpdateDisplayEconomia();
     }
 
 
@@ -45,31 +48,31 @@ public static class Core
     public static void SetPontosDeVida(int novaQuantidade)
     {
         pontosDeVida = novaQuantidade;
-        UpdatePontosDeVida();
+        UpdateDisplayVida();
     }
 
     public static void IncrementaPontosDeVida(int incremento)
     {
         pontosDeVida += incremento;
-        UpdatePontosDeVida();
+        UpdateDisplayVida();
     }
 
     // tinta
-    private static int quantidadeTinta = 0;
-    public static int GetQuantidadeTinta()
+    private static int[] quantidadeTinta = { 0, 0, 0, 0, 0, 0 };
+    public static int GetQuantidadeTinta(CorTinta corSelecionada)
     {
-        return quantidadeTinta;
+        return quantidadeTinta[(int)corSelecionada];
     }
-    public static void SetQuantidadeTinta(int novaQuantidade)
+    public static void SetQuantidadeTinta(CorTinta corSelecionada, int novaQuantidade)
     {
-        quantidadeTinta = novaQuantidade;
-        UpdateNumeroTinta();
+        quantidadeTinta[(int)corSelecionada] = novaQuantidade;
+        UpdateDisplayTinta();
     }
 
-    public static void IncrementaQuantidadeTinta(int incremento)
+    public static void IncrementaQuantidadeTinta(CorTinta corSelecionada, int incremento)
     {
-        quantidadeTinta += incremento;
-        UpdateNumeroTinta();
+        quantidadeTinta[(int)corSelecionada] += incremento;
+        UpdateDisplayTinta();
     }
 
     public static bool SetIndicadorGrafite(bool indicadorSetActive)
@@ -79,16 +82,22 @@ public static class Core
         return true;
     }
 
-    private static void UpdateNumeroTinta()
+    private static void UpdateDisplayTinta()
     {
         Transform referenciaUI = Camera.main.transform.GetChild(0).GetChild(0);
         if(referenciaUI != null)
         {
-            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text = "TINTA: " + quantidadeTinta.ToString();
+            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text =
+                "[R:" + quantidadeTinta[(int)CorTinta.Vermelho].ToString() +
+                "|Y:" + quantidadeTinta[(int)CorTinta.Amarelo].ToString() +
+                "|G:" + quantidadeTinta[(int)CorTinta.Verde].ToString() +
+                "|C:" + quantidadeTinta[(int)CorTinta.Ciano].ToString() +
+                "|B:" + quantidadeTinta[(int)CorTinta.Azul].ToString() +
+                "|M:" + quantidadeTinta[(int)CorTinta.Magenta].ToString() + "]";
         }
     }
 
-    private static void UpdateAmoeda()
+    private static void UpdateDisplayEconomia()
     {
         Transform referenciaUI = Camera.main.transform.GetChild(0).GetChild(2);
         if (referenciaUI != null)
@@ -97,12 +106,34 @@ public static class Core
         }
     }
 
-    private static void UpdatePontosDeVida()
+    private static void UpdateDisplayVida()
     {
         Transform referenciaUI = Camera.main.transform.GetChild(0).GetChild(1);
         if (referenciaUI != null)
         {
-            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text = "VIDA: " + pontosDeVida.ToString();
+            string buffer = ""; // placeholder
+            switch (pontosDeVida)
+            {
+                case 1:
+                    buffer = "|3";
+                    break;
+                case 2:
+                    buffer = "<3";
+                    break;
+                case 3:
+                    buffer = "|3<3";
+                    break;
+                case 4:
+                    buffer = "<3<3";
+                    break;
+                case 5:
+                    buffer = "|3<3<3";
+                    break;
+                case 6:
+                    buffer = "<3<3<3";
+                    break;
+            }
+            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text = buffer;
         }
     }
 
@@ -120,7 +151,12 @@ public static class Core
 
     public static void Reset()
     {
-        quantidadeTinta = 0;
+        quantidadeTinta[(int)CorTinta.Vermelho] = 0;
+        quantidadeTinta[(int)CorTinta.Amarelo] = 0;
+        quantidadeTinta[(int)CorTinta.Verde] = 0;
+        quantidadeTinta[(int)CorTinta.Ciano] = 0;
+        quantidadeTinta[(int)CorTinta.Azul] = 0;
+        quantidadeTinta[(int)CorTinta.Magenta] = 0;
         quantidadeAmoeda = 0;
         pontosDeVida = 0;
     }

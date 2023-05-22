@@ -789,6 +789,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoInteragivel: 0
+  corTinta: 0
 --- !u!1 &183152885
 GameObject:
   m_ObjectHideFlags: 0
@@ -836,6 +837,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoInteragivel: 2
+  corTinta: 0
 --- !u!61 &183152888
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1752,7 +1754,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd23458b8d16d42b8d314a2059ecd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipoInteragivel: 5
+  tipoInteragivel: 6
+  corTinta: 0
 --- !u!1 &347297574
 GameObject:
   m_ObjectHideFlags: 0
@@ -2469,7 +2472,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd23458b8d16d42b8d314a2059ecd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipoInteragivel: 7
+  tipoInteragivel: 8
+  corTinta: 0
 --- !u!212 &746974201
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3161,6 +3165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoInteragivel: 0
+  corTinta: 0
 --- !u!61 &909703342
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3271,7 +3276,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd23458b8d16d42b8d314a2059ecd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipoInteragivel: 6
+  tipoInteragivel: 7
+  corTinta: 0
 --- !u!61 &926092181
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4057,6 +4063,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoInteragivel: 1
+  corTinta: 0
 --- !u!61 &1120293359
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5095,7 +5102,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd23458b8d16d42b8d314a2059ecd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipoInteragivel: 5
+  tipoInteragivel: 6
+  corTinta: 0
 --- !u!1 &1336532911
 GameObject:
   m_ObjectHideFlags: 0
@@ -5376,7 +5384,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd23458b8d16d42b8d314a2059ecd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipoInteragivel: 5
+  tipoInteragivel: 6
+  corTinta: 0
 --- !u!1 &1393172283
 GameObject:
   m_ObjectHideFlags: 0
@@ -6095,6 +6104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoInteragivel: 3
+  corTinta: 2
 --- !u!1 &1435164232
 GameObject:
   m_ObjectHideFlags: 0
@@ -6508,6 +6518,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoInteragivel: 1
+  corTinta: 0
 --- !u!61 &1443635748
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -8724,7 +8735,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd23458b8d16d42b8d314a2059ecd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipoInteragivel: 4
+  tipoInteragivel: 5
+  corTinta: 0
 --- !u!1 &1583917476
 GameObject:
   m_ObjectHideFlags: 0
@@ -15569,7 +15581,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd23458b8d16d42b8d314a2059ecd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipoInteragivel: 5
+  tipoInteragivel: 6
+  corTinta: 0
 --- !u!1 &2142929660
 GameObject:
   m_ObjectHideFlags: 0
