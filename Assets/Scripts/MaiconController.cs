@@ -93,6 +93,7 @@ public class MaiconController : MonoBehaviour
         pehMaicon = this.transform.GetChild(1).GetComponent<BoxCollider2D>();
         TipoMovimentoAtual = TipoMovimento.Livre;
         maiconAnimator = this.GetComponent<Animator>();
+        Core.SetPontosDeVida(6);
     }
     
     private void Update()
@@ -203,7 +204,7 @@ public class MaiconController : MonoBehaviour
                 }
                 break;
             case TipoMovimento.EscaladaOmnidirecional:
-                this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
+                this.transform.position += new Vector3(movimentoHorizontal, movimentoVertical, 0f).normalized * velocidadeDeEscalada * Time.deltaTime;
                 maiconAnimator.SetFloat("playbackSpeed", (Mathf.Abs(movimentoHorizontal) + Mathf.Abs(movimentoVertical)) * defaultAnimSpeed);
                 if (botaoPulo)
                 {
@@ -259,6 +260,16 @@ public class MaiconController : MonoBehaviour
 
     /* METODOS DE INTERACAO */
 
+    public bool InteracaoBarzin()
+    {
+        if (Core.GetAmoeda() >= 5 && Core.GetPontosDeVida() < 6)
+        {
+            Core.IncrementaAmoeda(-5);
+            Core.IncrementaPontosDeVida(1);
+        } 
+        return true;
+    }
+
     public bool InteracaoMudarRua()
     {
         int index = objetoInteragivel.transform.parent.childCount - objetoInteragivel.transform.GetSiblingIndex() - 1;
@@ -271,6 +282,7 @@ public class MaiconController : MonoBehaviour
         Animator lixeiraAnimation = objetoInteragivel.GetComponent<Animator>();
         if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
         {
+            Core.IncrementaAmoeda(1);
             lixeiraAnimation.Play("fecharLixeira");
             TipoMovimentoAtual = TipoMovimento.Escondido;
             corpoMaicon.velocity = Vector2.zero;

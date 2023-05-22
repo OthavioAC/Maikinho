@@ -10,7 +10,8 @@ public enum TipoInteragivel
     Coletavel,
     Grafitavel,
     Portal,
-    Esconderijo
+    Esconderijo,
+    Barzin
 }
 
 public class Interagivel : MonoBehaviour
@@ -64,6 +65,7 @@ public class Interagivel : MonoBehaviour
             case TipoInteragivel.Grafitavel: return maicon.InteracaoGrafite();
             case TipoInteragivel.Portal: return maicon.InteracaoMudarRua();
             case TipoInteragivel.Esconderijo: return maicon.InteracaoEsconder();
+            case TipoInteragivel.Barzin: return maicon.InteracaoBarzin();
             default: return false;
         }
     }
