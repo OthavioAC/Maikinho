@@ -9,7 +9,7 @@ public class PolicialColliderController : MonoBehaviour
 
     private void Start()
     {
-        copCollider = this.GetComponent<BoxCollider2D>();
+        copCollider = this.transform.parent.GetChild(0).GetComponent<BoxCollider2D>();
         copAI = this.GetComponentInParent<PolicialAI>();
     }
     /* AKI VAO OS ONTRIGGER E ONCOLLISION PRA DETECTAR CONTATO COM CASAS E COM O MAIKIN */
@@ -18,6 +18,7 @@ public class PolicialColliderController : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             Debug.Log("PegouMaikin");
+            Core.IncrementaPontosDeVida(-1);
         }
         if (collision.gameObject.CompareTag("Casa"))
         {

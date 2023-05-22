@@ -59,7 +59,7 @@ public class PolicialAI : MonoBehaviour
 
     private void Start()
     {
-        copCollider = this.GetComponentInChildren<BoxCollider2D>();
+        copCollider = this.transform.GetChild(0).GetComponent<BoxCollider2D>();
         Physics2D.IgnoreCollision(maicon.GetChild(1).GetComponent<BoxCollider2D>(), copCollider, true); // PH, usar PhysicsLayer dps
         copBody = GetComponent<Rigidbody2D>();
         copSprite = this.GetComponent<SpriteRenderer>();

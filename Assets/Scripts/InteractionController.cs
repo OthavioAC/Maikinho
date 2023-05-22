@@ -14,6 +14,7 @@ public class InteractionController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Debug.Log("TriggerEnter");
         objetoInteragivel = collision.gameObject.GetComponent<Interagivel>();
         if (objetoInteragivel != null && !objetoInteragivel.InteracaoOnTriggerEnter(maicon))
         {
@@ -23,6 +24,7 @@ public class InteractionController : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
+
         objetoInteragivel = collision.gameObject.GetComponent<Interagivel>();
         if (objetoInteragivel != null)
         {
@@ -32,6 +34,7 @@ public class InteractionController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        Debug.Log("TriggerExit");
         objetoInteragivel = collision.gameObject.GetComponent<Interagivel>();
         if (objetoInteragivel != null)
         {
