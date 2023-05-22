@@ -34,7 +34,7 @@ public class PolicialAI : MonoBehaviour
     }
 
     private float copSpeed = 20f; // ph -> [4 - 6]
-    private float copClimbSpeed = 5f; // ph -> [6 - 8]
+    private float copClimbSpeed = 15f; // ph -> [6 - 8]
 
     private Transform target;
 
@@ -100,7 +100,7 @@ public class PolicialAI : MonoBehaviour
                     }
                     if (currentMovimento == TipoMovimento.EscaladaOmnidirecional)
                     {
-                        this.transform.position += (Vector3)(currentDirection + Vector2.up).normalized * copSpeed * Time.deltaTime;
+                        this.transform.position += (Vector3)(currentDirection + Vector2.up).normalized * copClimbSpeed * Time.deltaTime;
                     }
                 }
                 break;
