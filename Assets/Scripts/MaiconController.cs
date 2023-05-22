@@ -134,6 +134,24 @@ public class MaiconController : MonoBehaviour
                 interacaoDisponivel = false;
                 objetoInteragivel.InteracaoOnButtonDown(this);
             }
+
+            if (TipoMovimentoAtual == TipoMovimento.EscaladaHorizontal || TipoMovimentoAtual == TipoMovimento.EscaladaVertical || TipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
+            {
+                if (TipoMovimentoAtual != TipoMovimento.EscaladaHorizontal && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal && movimentoHorizontal != 0)
+                {
+                    objetoInteragivel.InteracaoOnButtonDown(this);
+                }
+
+                if (TipoMovimentoAtual != TipoMovimento.EscaladaVertical && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical && movimentoVertical != 0)
+                {
+                    objetoInteragivel.InteracaoOnButtonDown(this);
+                }
+
+                if (TipoMovimentoAtual != TipoMovimento.EscaladaOmnidirecional && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.EscalavelOmnidirecional && (movimentoHorizontal != 0 || movimentoVertical != 0))
+                {
+                    objetoInteragivel.InteracaoOnButtonDown(this);
+                }
+            }
         }
         // movimento
         switch (TipoMovimentoAtual)
@@ -289,20 +307,24 @@ public class MaiconController : MonoBehaviour
 
     public bool InteracaoEscalavelVertical(bool forceReset = false)
     {
-        if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
+        if (TipoMovimentoAtual != TipoMovimento.EscaladaVertical && !forceReset)
         {
             PadraoEscalada();
             TipoMovimentoAtual = TipoMovimento.EscaladaVertical;
             this.transform.position = new Vector3(objetoInteragivel.transform.position.x, this.transform.position.y, this.transform.position.z);
             return true;
         }
-        PadraoLivre();
+        if (TipoMovimentoAtual == TipoMovimento.EscaladaVertical)
+        {
+            PadraoLivre();
+            return true;
+        }
         return true;
     }
 
     public bool InteracaoEscalavelHorizontal(bool forceReset = false)
     {
-        if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
+        if (TipoMovimentoAtual != TipoMovimento.EscaladaHorizontal && !forceReset)
         {
             PadraoEscalada();
             TipoMovimentoAtual = TipoMovimento.EscaladaHorizontal;
@@ -310,19 +332,27 @@ public class MaiconController : MonoBehaviour
             
             return true;
         }
-        PadraoLivre();
+        if (TipoMovimentoAtual == TipoMovimento.EscaladaHorizontal)
+        {
+            PadraoLivre();
+            return true;
+        }
         return true;
     }
 
     public bool InteracaoEscalavelOmnidirecional(bool forceReset = false)
     {
-        if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
+        if (TipoMovimentoAtual != TipoMovimento.EscaladaOmnidirecional && !forceReset)
         {
             PadraoEscalada();
             TipoMovimentoAtual = TipoMovimento.EscaladaOmnidirecional;
             return true;
         }
-        PadraoLivre();
+        if (TipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
+        {
+            PadraoLivre();
+            return true;
+        }
         return true;
     }
 
