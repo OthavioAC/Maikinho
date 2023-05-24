@@ -188,7 +188,7 @@ public class MaiconController : MonoBehaviour
                         }
                         if (objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal && interacaoHorizontal)
                         {
-                            if (this.transform.position.y > objetoAlvo.transform.position.y)
+                            if (this.transform.position.y - 1.5f > objetoAlvo.transform.position.y)
                             {
                                 break;
                             }
@@ -215,7 +215,7 @@ public class MaiconController : MonoBehaviour
             {
                 if (interagivelAtual.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal)
                 {
-                    if (this.transform.position.y > interagivelAtual.transform.position.y && movimentoVertical != -1) return;
+                    if (this.transform.position.y - 1.5f > interagivelAtual.transform.position.y && movimentoVertical != -1) return;
                     if (!interacaoDirecional && this.transform.position.y <= interagivelAtual.transform.position.y && movimentoVertical == 1)
                     {
                         this.transform.position += Vector3.up * 2.5f;
