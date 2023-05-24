@@ -37,18 +37,18 @@ public class Interagivel : MonoBehaviour
         {
             switch(corTinta)
             { // mudar sprite aki
-                case CorTinta.Vermelho:
+                case CorTinta.VERMELHA:
                     break;
-                case CorTinta.Amarelo:
+                case CorTinta.AMARELA:
                     break;
-                case CorTinta.Verde:
+                case CorTinta.VERDE:
                     this.GetComponent<SpriteRenderer>().color = Color.green; // placeholder
                     break;
-                case CorTinta.Ciano:
+                case CorTinta.CIANO:
                     break;
-                case CorTinta.Azul:
+                case CorTinta.AZUL:
                     break;
-                case CorTinta.Magenta:
+                case CorTinta.MAGENTA:
                     break;
                 default:
                     break;

@@ -32,6 +32,8 @@ public enum Skin
 
 public class MaiconController : MonoBehaviour
 {
+    private float speedTest = 0f;
+    /*  */
     private Skin skinAtual;
     private float skinTimer = 3f;
     /* Flags */
@@ -98,6 +100,12 @@ public class MaiconController : MonoBehaviour
     
     private void Update()
     {
+        if (corpoMaicon.velocity.x > speedTest)
+        {
+            speedTest = corpoMaicon.velocity.x;
+            Debug.Log(speedTest);
+        }
+        //
         if (Input.GetButton("BRANCO0") || Input.GetButton("BRANCO1")) skinTimer -= Time.deltaTime;
         if (Input.GetButtonUp("BRANCO0") || Input.GetButtonUp("BRANCO1")) skinTimer = 3f;
 
@@ -263,7 +271,7 @@ public class MaiconController : MonoBehaviour
 
     public bool InteracaoBarzin()
     {
-        if (Core.GetQuantidadeMoeda() >= 5 && Core.GetPontosDeVida() < 6)
+        if (Core.GetQuantidadeMoeda() >= 5 && Core.GetPontosDeVida() < 12)
         {
             Core.IncrementaQuantidadeMoeda(-5);
             Core.IncrementaPontosDeVida(1);
@@ -303,7 +311,7 @@ public class MaiconController : MonoBehaviour
     public bool InteracaoGrafite()
     {
         SpriteRenderer grafiteSpriteRenderer = objetoInteragivel.GetComponent<SpriteRenderer>();
-        if (Core.GetQuantidadeTinta(CorTinta.Verde) > 0 && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0")
+        if (Core.GetQuantidadeTinta(CorTinta.VERDE) > 0 && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0")
         {
             /* SPLACEHOLDER */
             foreach(Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
@@ -311,7 +319,7 @@ public class MaiconController : MonoBehaviour
                 if (spritePart.name == "GRAFITE_PH_1")
                 {
                     grafiteSpriteRenderer.sprite = spritePart;
-                    Core.IncrementaQuantidadeTinta(CorTinta.Verde, -1);
+                    Core.IncrementaQuantidadeTinta(CorTinta.VERDE, -1);
                 }
             }
         }
