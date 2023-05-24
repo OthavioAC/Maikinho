@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using System.Linq;
 
 public enum TipoMovimento
 {
@@ -74,12 +75,30 @@ public class MaiconController : MonoBehaviour
     private Vector2 movimentoFinal;
     private float defaultAnimSpeed = .5f;
     //[SerializeField] private float baseCoyoteTime = 0f;
+    
+    private List<Interagivel> objetosInteragiveis = new List<Interagivel>();
+    private Interagivel interagivelAtual;
 
-    private Interagivel objetoInteragivel; // mudar pra lista depois pra multiplas interacoes
-
-    public void SetObjetoInteragivel(Interagivel novoObjetoInteragivel)
+    public void AddObjetoInteragivel(Interagivel objetoInteragivel)
     {
-        objetoInteragivel = novoObjetoInteragivel;
+        if (objetosInteragiveis.Count<Interagivel>() == 0)
+        {
+            interagivelAtual = objetoInteragivel;
+        }
+        objetosInteragiveis.Add(objetoInteragivel);
+    }
+
+    public void RemoveObjetoInteragivel(Interagivel objetoInteragivel)
+    {
+        objetosInteragiveis.Remove(objetoInteragivel);
+        if (objetosInteragiveis.Count<Interagivel>() == 1)
+        {
+            interagivelAtual = objetosInteragiveis[0];
+        }
+        if (objetosInteragiveis.Count<Interagivel>() == 0)
+        {
+            interagivelAtual = null;
+        }
     }
     
     public bool GetSpriteFlipX()
@@ -96,10 +115,12 @@ public class MaiconController : MonoBehaviour
         TipoMovimentoAtual = TipoMovimento.Livre;
         maiconAnimator = this.GetComponent<Animator>();
         Core.SetPontosDeVida(6);
+        interagivelAtual = null;
     }
     
     private void Update()
     {
+        Debug.Log(objetosInteragiveis.Count<Interagivel>());
         if (corpoMaicon.velocity.x > speedTest)
         {
             speedTest = corpoMaicon.velocity.x;
@@ -132,34 +153,76 @@ public class MaiconController : MonoBehaviour
         botaoPulo = Input.GetButtonDown("VERMELHO0") || Input.GetButtonDown("VERMELHO1");
         estaCorrendo = Input.GetButton("PRETO0") || Input.GetButton("PRETO1");
         // interacao
-        if (objetoInteragivel != null)
+        if (interagivelAtual != null)
         {
-            if (objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.Portal && (Input.GetButtonDown("VERTICAL0") || Input.GetButtonDown("VERTICAL1")))
+            bool interacaoDirecional = false;
+            if (objetosInteragiveis.Count<Interagivel>() > 1)
             {
-                objetoInteragivel.InteracaoOnButtonDown(this);
+                bool interacaoVertical = interagivelAtual.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal && (movimentoHorizontal == 0 && movimentoVertical != 0);
+                bool interacaoHorizontal = interagivelAtual.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical && (movimentoHorizontal != 0 && movimentoVertical == 0);
+                bool interacaoOmni = interagivelAtual.GetTipoInteragivel() == TipoInteragivel.EscalavelOmnidirecional && (movimentoHorizontal != 0 || movimentoVertical != 0);
+
+
+                Interagivel buffer = interagivelAtual;
+                foreach (Interagivel objetoAlvo in objetosInteragiveis)
+                {
+                    if (buffer == null)
+                    {
+                        buffer = objetoAlvo;
+                        break;
+                    }
+
+                    bool flagEscalavelHorizontal = objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal;
+                    bool flagEscalavelVertical = objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical;
+                    bool flagEscalavelOmnidirecional = objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelOmnidirecional;
+                    bool flagEscalavel = flagEscalavelHorizontal || flagEscalavelVertical || flagEscalavelOmnidirecional;
+                    if (TipoMovimentoAtual != TipoMovimento.Livre && objetoAlvo != interagivelAtual && flagEscalavel)
+                    {
+                        if (objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical && interacaoVertical)
+                        {
+                            interacaoDisponivel = true;
+                            estaInteragindo = true;
+                            interacaoDirecional = true;
+                            buffer = objetoAlvo;
+                            break;
+                        }
+                        if (objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal && interacaoHorizontal)
+                        {
+                            if (this.transform.position.y > objetoAlvo.transform.position.y)
+                            {
+                                break;
+                            }
+                            interacaoDisponivel = true;
+                            estaInteragindo = true;
+                            interacaoDirecional = true;
+                            buffer = objetoAlvo;
+                            break;
+                        }
+                        if (objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelOmnidirecional && interacaoOmni)
+                        {
+                            interacaoDisponivel = true;
+                            estaInteragindo = true;
+                            interacaoDirecional = true;
+                            buffer = objetoAlvo;
+                            break;
+                        }
+                    }
+                }
+                interagivelAtual = buffer;
             }
+
             if (interacaoDisponivel && estaInteragindo)
             {
-                interacaoDisponivel = false;
-                objetoInteragivel.InteracaoOnButtonDown(this);
-            }
-
-            if (TipoMovimentoAtual == TipoMovimento.EscaladaHorizontal || TipoMovimentoAtual == TipoMovimento.EscaladaVertical || TipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
-            {
-                if (TipoMovimentoAtual != TipoMovimento.EscaladaHorizontal && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal && movimentoHorizontal != 0)
+                if (interagivelAtual.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal)
                 {
-                    objetoInteragivel.InteracaoOnButtonDown(this);
+                    if (this.transform.position.y > interagivelAtual.transform.position.y && movimentoVertical != -1) return;
+                    if (!interacaoDirecional && this.transform.position.y <= interagivelAtual.transform.position.y && movimentoVertical == 1)
+                    {
+                        this.transform.position += Vector3.up * 2.5f;
+                    }
                 }
-
-                if (TipoMovimentoAtual != TipoMovimento.EscaladaVertical && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical && movimentoVertical != 0)
-                {
-                    objetoInteragivel.InteracaoOnButtonDown(this);
-                }
-
-                if (TipoMovimentoAtual != TipoMovimento.EscaladaOmnidirecional && objetoInteragivel.GetTipoInteragivel() == TipoInteragivel.EscalavelOmnidirecional && (movimentoHorizontal != 0 || movimentoVertical != 0))
-                {
-                    objetoInteragivel.InteracaoOnButtonDown(this);
-                }
+                interacaoDisponivel = !interacaoDirecional ? false : interacaoDisponivel;
+                interagivelAtual.InteracaoOnButtonDown(this);
             }
         }
         // movimento
@@ -208,6 +271,7 @@ public class MaiconController : MonoBehaviour
                     puloAgendado = true;
                     puloCancelado = false;
                     TocarAnimacao(Animacao.Pular);
+                    this.transform.position += Vector3.up * 2.5f;
                     InteracaoEscalavelHorizontal(true);
                 }
                 break;
@@ -281,14 +345,14 @@ public class MaiconController : MonoBehaviour
 
     public bool InteracaoMudarRua()
     {
-        int index = objetoInteragivel.transform.parent.childCount - objetoInteragivel.transform.GetSiblingIndex() - 1;
-        this.transform.position = new Vector3(objetoInteragivel.transform.parent.GetChild(index).position.x, this.transform.position.y, 0f);
+        int index = interagivelAtual.transform.parent.childCount - interagivelAtual.transform.GetSiblingIndex() - 1;
+        this.transform.position = new Vector3(interagivelAtual.transform.parent.GetChild(index).position.x, this.transform.position.y, 0f);
         return true;
     }
     
     public bool InteracaoEsconder(bool forceReset = false)
     {
-        Animator lixeiraAnimation = objetoInteragivel.GetComponent<Animator>();
+        Animator lixeiraAnimation = interagivelAtual.GetComponent<Animator>();
         if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
         {
             Core.IncrementaQuantidadeMoeda(1);
@@ -297,7 +361,7 @@ public class MaiconController : MonoBehaviour
             corpoMaicon.velocity = Vector2.zero;
             movimentoFinal = Vector2.zero;
             maiconSprite.enabled = false;
-            this.transform.position = objetoInteragivel.transform.position;
+            this.transform.position = interagivelAtual.transform.position;
             return true;
         }
         lixeiraAnimation.Play("abrirLixeira");
@@ -310,7 +374,7 @@ public class MaiconController : MonoBehaviour
 
     public bool InteracaoGrafite()
     {
-        SpriteRenderer grafiteSpriteRenderer = objetoInteragivel.GetComponent<SpriteRenderer>();
+        SpriteRenderer grafiteSpriteRenderer = interagivelAtual.GetComponent<SpriteRenderer>();
         if (Core.GetQuantidadeTinta(CorTinta.VERDE) > 0 && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0")
         {
             /* SPLACEHOLDER */
@@ -332,7 +396,7 @@ public class MaiconController : MonoBehaviour
         {
             PadraoEscalada();
             TipoMovimentoAtual = TipoMovimento.EscaladaVertical;
-            this.transform.position = new Vector3(objetoInteragivel.transform.position.x, this.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3(interagivelAtual.transform.position.x, this.transform.position.y, this.transform.position.z);
             return true;
         }
         if (TipoMovimentoAtual == TipoMovimento.EscaladaVertical)
@@ -349,7 +413,7 @@ public class MaiconController : MonoBehaviour
         {
             PadraoEscalada();
             TipoMovimentoAtual = TipoMovimento.EscaladaHorizontal;
-            this.transform.position = new Vector3(this.transform.position.x, objetoInteragivel.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3(this.transform.position.x, interagivelAtual.transform.position.y, this.transform.position.z);
             
             return true;
         }

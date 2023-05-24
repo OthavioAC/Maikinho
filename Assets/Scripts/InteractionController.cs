@@ -17,10 +17,10 @@ public class InteractionController : MonoBehaviour
         objetoInteragivel = collision.gameObject.GetComponent<Interagivel>();
         if (objetoInteragivel != null && !objetoInteragivel.InteracaoOnTriggerEnter(maicon))
         {
-            maicon.SetObjetoInteragivel(objetoInteragivel);
+            maicon.AddObjetoInteragivel(objetoInteragivel);
         }
     }
-
+    /*
     private void OnTriggerStay2D(Collider2D collision)
     {
 
@@ -29,7 +29,7 @@ public class InteractionController : MonoBehaviour
         {
             maicon.SetObjetoInteragivel(objetoInteragivel);
         }
-    }
+    }*/
 
     private void OnTriggerExit2D(Collider2D collision)
     {
@@ -37,7 +37,7 @@ public class InteractionController : MonoBehaviour
         if (objetoInteragivel != null)
         {
             objetoInteragivel.InteracaoOnTriggerExit(maicon);
-            maicon.SetObjetoInteragivel(null);
+            maicon.RemoveObjetoInteragivel(objetoInteragivel);
         }
     }
 }

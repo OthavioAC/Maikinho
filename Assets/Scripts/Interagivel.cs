@@ -64,10 +64,12 @@ public class Interagivel : MonoBehaviour
                 Core.IncrementaQuantidadeTinta(corTinta, 1);
                 GameObject.Destroy(this.gameObject);
                 return true;
-            case TipoInteragivel.Grafitavel: return Core.SetIndicadorGrafite(true);
+            case TipoInteragivel.Grafitavel:
+                Core.SetIndicadorGrafite(true);
+                return false;
             case TipoInteragivel.Portal:
                 this.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
-                return true;
+                return false;
             default:
                 return false;
         }
