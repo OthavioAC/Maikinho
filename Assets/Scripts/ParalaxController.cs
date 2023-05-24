@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ParalaxController : MonoBehaviour
 {
+    [SerializeField] private bool fixarAltura = false;
+    [SerializeField] private bool acompanharCamera = false;
     [SerializeField] private float alturaFixa = 0;
     [SerializeField] private float velocidadeParalax = 0;
 
@@ -19,16 +21,16 @@ public class ParalaxController : MonoBehaviour
     {
         novaPosicao = this.transform.position;
         novaPosicao.x += (bufferPosicao.x - Camera.main.transform.position.x) * velocidadeParalax;
-        novaPosicao.y = alturaFixa;
+        novaPosicao.y = fixarAltura ? alturaFixa : novaPosicao.y;
         this.transform.position = novaPosicao;
         
-        if (this.transform.localPosition.x > 30)
+        if (acompanharCamera && this.transform.localPosition.x > 30)
         {
-            this.transform.localPosition -= Vector3.right * 51;
+            this.transform.localPosition -= Vector3.right * 51.2f;
         }
-        if (this.transform.localPosition.x < -30)
+        if (acompanharCamera && this.transform.localPosition.x < -30)
         {
-            this.transform.localPosition += Vector3.right * 51;
+            this.transform.localPosition += Vector3.right * 51.2f;
         }
 
         bufferPosicao = Camera.main.transform.position;
