@@ -27,7 +27,7 @@ public class PolicialLanternaController : MonoBehaviour
             if ((!spriteLanterna.flipX && collision.transform.position.x > this.transform.position.x) || (spriteLanterna.flipX && collision.transform.position.x < this.transform.position.x))
             {
                 policialAI.SetObjetoAlvo(collision.transform);
-                policialAI.SetState(PolicialAIState.Busca);
+                policialAI.SetState(PolicialAIState.Ataque);
             }
         }
     }
@@ -39,7 +39,7 @@ public class PolicialLanternaController : MonoBehaviour
             if ((!spriteLanterna.flipX && collision.transform.position.x > this.transform.position.x) || (spriteLanterna.flipX && collision.transform.position.x < this.transform.position.x))
             {
                 policialAI.SetObjetoAlvo(collision.transform);
-                policialAI.SetState(PolicialAIState.Busca);
+                policialAI.SetState(PolicialAIState.Ataque);
             }
         }
     }
@@ -49,7 +49,7 @@ public class PolicialLanternaController : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             policialAI.SetObjetoAlvo(null);
-            policialAI.SetState(PolicialAIState.Idle);
+            policialAI.SetState(PolicialAIState.Patrulha);
         }
     }
 }
