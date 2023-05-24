@@ -12,12 +12,13 @@ public enum PolicialAIState
 
 public enum TipoPolicial
 {
-    Frakin,
-    Fortin
+    Civil,
+    Militar
 }
 
 public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que organizar depois
 {
+    private float hitCooldown = 10f; //ph
     /* Propriedades */
     [SerializeField] Transform maicon;
     private SpriteRenderer spritePolicial;
@@ -25,6 +26,7 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
     private BoxCollider2D colisorPolicial;
     private PolicialAIState estadoAtualDaIA;
     private TipoMovimento tipoMovimentoAtual;
+    private Animator policialAnimator;
 
     private float velocidadePolicial; // 4 - 6
     private float velocidadeEscaladaPolicial; // 6 - 8
@@ -88,16 +90,22 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
         tipoMovimentoAtual = TipoMovimento.Livre;
         currentDirection = this.transform.position;
         movimentoFinal = Vector2.zero;
+        policialAnimator = this.GetComponent<Animator>();
 
-        velocidadePolicial = tipoPolicial == TipoPolicial.Frakin ? 4 : 6;
-        velocidadeEscaladaPolicial = tipoPolicial == TipoPolicial.Frakin ? 6 : 8;
+        velocidadePolicial = tipoPolicial == TipoPolicial.Civil ? 4 : 6;
+        velocidadeEscaladaPolicial = tipoPolicial == TipoPolicial.Civil ? 6 : 8;
+
+
+        policialAnimator.SetFloat("playbackSpeed", 1f);
     }
 
     private void Update()
     {
+        hitCooldown -= hitCooldown > 0 ? Time.deltaTime : 0; // decremento e cap
         switch (estadoAtualDaIA)
         {
             case PolicialAIState.Idle:
+                policialAnimator.Play(Animator.StringToHash("policial" + tipoPolicial.ToString() + "Idle"));
                 cooldownVirar -= Time.deltaTime;
                 if (cooldownVirar <= 0)
                 {
@@ -111,6 +119,7 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
                     currentDirection = objetoAlvo.position - this.transform.position;
                     if (tipoMovimentoAtual == TipoMovimento.Livre)
                     {
+                        policialAnimator.Play(Animator.StringToHash("policial" + tipoPolicial.ToString() + (hitCooldown > 0 ? "Correr" : "Atacar")));
                         spritePolicial.flipX = currentDirection.x < 0 ? true : (currentDirection.x > 0 ? false : spritePolicial.flipX);
 
                         if (escalavelDisponivel != null && Mathf.Abs(currentDirection.x) < 3f && currentDirection.y > 2f)
@@ -121,6 +130,7 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
                     }
                     if (tipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
                     {
+                        policialAnimator.Play(Animator.StringToHash("policial" + tipoPolicial.ToString() + "Escalar"));
                         this.transform.position += (Vector3)(currentDirection + Vector2.up).normalized * velocidadeEscaladaPolicial * Time.deltaTime;
                     }
                 }
@@ -156,5 +166,13 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
                 break;
         }
         
+    }
+
+    public bool HitPlayer(int dano)
+    {
+        if(!(hitCooldown <= 0)) { return false; }
+        Core.IncrementaPontosDeVida(-dano);
+        hitCooldown = 10f;
+        return true;
     }
 }

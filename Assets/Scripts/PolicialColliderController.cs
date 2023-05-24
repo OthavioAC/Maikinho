@@ -21,8 +21,7 @@ public class PolicialColliderController : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("PegouMaikin");
-            Core.IncrementaPontosDeVida(-1);
+            Debug.Log(copAI.HitPlayer(1) ? "Pegou Maikin" : "ERROU");
         }
         if (collision.gameObject.CompareTag("Casa"))
         {
