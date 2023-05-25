@@ -20,6 +20,7 @@ public class Interagivel : MonoBehaviour
     /* Propriedades */
     [SerializeField] private TipoInteragivel tipoInteragivel;
     [SerializeField] private CorTinta corTinta;
+    [SerializeField] private int[] custoTinta = { 0, 0, 0, 0, 0, 0 };
 
     public TipoInteragivel GetTipoInteragivel()
     {
@@ -31,6 +32,17 @@ public class Interagivel : MonoBehaviour
         return corTinta;
     }
 
+    public bool SetCorTinta(CorTinta novaCor)
+    {
+        corTinta = novaCor;
+        return true;
+    }
+
+    public int[] GetCustoTinta()
+    {
+        return custoTinta;
+    }
+
     private void Start()
     {
         if (tipoInteragivel == TipoInteragivel.Tinta)
@@ -38,19 +50,25 @@ public class Interagivel : MonoBehaviour
             switch(corTinta)
             { // mudar sprite aki
                 case CorTinta.VERMELHA:
+                    this.GetComponent<SpriteRenderer>().color = Color.red; // placeholder
                     break;
                 case CorTinta.AMARELA:
+                    this.GetComponent<SpriteRenderer>().color = Color.yellow; // placeholder
                     break;
                 case CorTinta.VERDE:
                     this.GetComponent<SpriteRenderer>().color = Color.green; // placeholder
                     break;
                 case CorTinta.CIANO:
+                    this.GetComponent<SpriteRenderer>().color = Color.cyan; // placeholder
                     break;
                 case CorTinta.AZUL:
+                    this.GetComponent<SpriteRenderer>().color = Color.blue; // placeholder
                     break;
                 case CorTinta.MAGENTA:
+                    this.GetComponent<SpriteRenderer>().color = Color.magenta; // placeholder
                     break;
                 default:
+                    this.GetComponent<SpriteRenderer>().color = Color.black; // placeholder
                     break;
             }
         }

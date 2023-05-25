@@ -115,6 +115,7 @@ public class MaiconController : MonoBehaviour
         TipoMovimentoAtual = TipoMovimento.Livre;
         maiconAnimator = this.GetComponent<Animator>();
         Core.SetPontosDeVida(6);
+        Core.SetQuantidadeTinta(CorTinta.TODAS, 0);
         interagivelAtual = null;
     }
     
@@ -375,7 +376,13 @@ public class MaiconController : MonoBehaviour
     public bool InteracaoGrafite()
     {
         SpriteRenderer grafiteSpriteRenderer = interagivelAtual.GetComponent<SpriteRenderer>();
-        if (Core.GetQuantidadeTinta(CorTinta.VERDE) > 0 && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0")
+        int[] custoTinta = interagivelAtual.GetCustoTinta();
+        bool passFlag = true;
+        for (int index = 0; index < (int)CorTinta.TODAS; index++)
+        {
+            if (Core.GetQuantidadeTinta((CorTinta)index) < custoTinta[index]) passFlag = false;
+        }
+        if (passFlag && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0") //mudar o final
         {
             /* SPLACEHOLDER */
             foreach(Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
@@ -383,7 +390,10 @@ public class MaiconController : MonoBehaviour
                 if (spritePart.name == "GRAFITE_PH_1")
                 {
                     grafiteSpriteRenderer.sprite = spritePart;
-                    Core.IncrementaQuantidadeTinta(CorTinta.VERDE, -1);
+                    for (int index = 0; index < (int)CorTinta.TODAS; index++)
+                    {
+                        Core.IncrementaQuantidadeTinta((CorTinta)index, -custoTinta[index]);
+                    }
                 }
             }
         }
