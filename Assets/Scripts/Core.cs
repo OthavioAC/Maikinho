@@ -73,14 +73,21 @@ public static class Core
     }
     public static void SetQuantidadeTinta(CorTinta corSelecionada, int novaQuantidade)
     {
-        quantidadeTinta[(int)corSelecionada] = novaQuantidade;
-        if (quantidadeTinta[(int)corSelecionada] < 0) quantidadeTinta[(int)corSelecionada] = 0; // cap
+        for (int index = 0; index < (int)CorTinta.TODAS; index++)
+        {
+            if (corSelecionada != CorTinta.TODAS && index != (int)corSelecionada) continue;
+            quantidadeTinta[index] = novaQuantidade >= 0 ? novaQuantidade : 0;
+        }
         UpdateDisplayTinta(corSelecionada);
     }
     public static void IncrementaQuantidadeTinta(CorTinta corSelecionada, int incremento)
     {
-        quantidadeTinta[(int)corSelecionada] += incremento;
-        if (quantidadeTinta[(int)corSelecionada] < 0) quantidadeTinta[(int)corSelecionada] = 0; // cap
+        for (int index = 0; index < (int)CorTinta.TODAS; index++)
+        {
+            if (corSelecionada != CorTinta.TODAS && index != (int)corSelecionada) continue;
+            quantidadeTinta[index] += incremento;
+            if (quantidadeTinta[index] < 0) quantidadeTinta[index] = 0;
+        }
         UpdateDisplayTinta(corSelecionada);
     }
     // ui
@@ -100,34 +107,42 @@ public static class Core
                 if (spritePart.name.StartsWith("TINTA_VERMELHA_0"))
                 {
                     referenciaUI.GetChild(0).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
                 if (spritePart.name.StartsWith("TINTA_AMARELA_0"))
                 {
                     referenciaUI.GetChild(1).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
                 if (spritePart.name.StartsWith("TINTA_VERDE_0"))
                 {
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(2).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
                 if (spritePart.name.StartsWith("TINTA_CIANO_0"))
                 {
                     referenciaUI.GetChild(3).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(3).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
                 if (spritePart.name.StartsWith("TINTA_AZUL_0"))
                 {
                     referenciaUI.GetChild(4).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(4).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
                 if (spritePart.name.StartsWith("TINTA_MAGENTA_0"))
                 {
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(5).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
             }
             return;
         }
         Transform referenciaTintaUI = referenciaUI.GetChild((int)corSelecionada); // ph
-        if(referenciaUI != null)
+        if (referenciaUI != null)
         {
-            string spriteName = "TINTA_" + corSelecionada.ToString() + (GetQuantidadeTinta(corSelecionada) > 0 ? "_1" : "_0");
+            int quantidadeAtual = GetQuantidadeTinta(corSelecionada);
+            referenciaTintaUI.GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : "x" + quantidadeAtual.ToString();
+            string spriteName = "TINTA_" + corSelecionada.ToString() + (quantidadeAtual > 0 ? "_1" : "_0");
             foreach (Sprite spritePart in Resources.LoadAll<Sprite>("tintas"))
             {
                 if(spritePart.name == spriteName)
@@ -142,7 +157,7 @@ public static class Core
         Transform referenciaUI = Camera.main.transform.GetChild(0).GetChild(2);
         if (referenciaUI != null)
         {
-            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text = "MOEDA: " + quantidadeMoeda.ToString();
+            referenciaUI.GetComponentInChildren<TextMeshProUGUI>().text = "x" + quantidadeMoeda.ToString();
         }
     }
     private static void UpdateDisplayVida()
