@@ -16,13 +16,26 @@ public enum CorTinta
     TODAS,
 }
 
+public enum GameOverState
+{
+    BAD_ENDING,
+    GOOD_ENDING,
+    NONE,
+}
+
 public static class Core
 {
+    private static GameOverState gameOverState = GameOverState.NONE;
     // propriedades
     private static float gravidade = 4f; // "constante"
     private static int quantidadeMoeda = 0;
     private static int pontosDeVida = 0;
     private static int[] quantidadeTinta = { 0, 0, 0, 0, 0, 0 };
+    //
+    public static GameOverState GetGameOverState()
+    {
+        return gameOverState;
+    }
     // gravidade
     public static float GetGravidade()
     {
@@ -106,42 +119,42 @@ public static class Core
             {
                 if (spritePart.name.StartsWith("TINTA_VERMELHA_0"))
                 {
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(5).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
                 if (spritePart.name.StartsWith("TINTA_AMARELA_0"))
-                {
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
-                }
-                if (spritePart.name.StartsWith("TINTA_VERDE_0"))
-                {
-                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(2).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
-                }
-                if (spritePart.name.StartsWith("TINTA_CIANO_0"))
-                {
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(3).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
-                }
-                if (spritePart.name.StartsWith("TINTA_AZUL_0"))
                 {
                     referenciaUI.GetChild(4).GetComponent<Image>().sprite = spritePart;
                     referenciaUI.GetChild(4).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
+                if (spritePart.name.StartsWith("TINTA_VERDE_0"))
+                {
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(3).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                }
+                if (spritePart.name.StartsWith("TINTA_CIANO_0"))
+                {
+                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(2).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                }
+                if (spritePart.name.StartsWith("TINTA_AZUL_0"))
+                {
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                }
                 if (spritePart.name.StartsWith("TINTA_MAGENTA_0"))
                 {
-                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(5).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = spritePart;
+                    referenciaUI.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
                 }
             }
             return;
         }
-        Transform referenciaTintaUI = referenciaUI.GetChild((int)corSelecionada); // ph
+        Transform referenciaTintaUI = referenciaUI.GetChild(5 - (int)corSelecionada); // ph
         if (referenciaUI != null)
         {
             int quantidadeAtual = GetQuantidadeTinta(corSelecionada);
-            referenciaTintaUI.GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : "x" + quantidadeAtual.ToString();
+            referenciaTintaUI.GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : ((quantidadeAtual < 10 ? "x" : string.Empty) + quantidadeAtual.ToString());
             string spriteName = "TINTA_" + corSelecionada.ToString() + (quantidadeAtual > 0 ? "_1" : "_0");
             foreach (Sprite spritePart in Resources.LoadAll<Sprite>("tintas"))
             {
@@ -301,9 +314,14 @@ public static class Core
 
             }
         }
+        if (pontosDeVida <= 0)
+        {
+            gameOverState = GameOverState.BAD_ENDING;
+            SceneManager.LoadScene("GameOver"); // placeholder, colocar delay depois
+        }
     }
-    // ruas
-    /* NAO ESTA SENDO USADA AINDA (só no "menu") */
+
+    /*
     private static string UltimaRuaVisitada = "MainMenu";
     private static string RuaAtual = "MainMenu";
 
@@ -313,6 +331,7 @@ public static class Core
         RuaAtual = NomeRua;
         SceneManager.LoadScene(NomeRua);
     }
+    */
 
     public static void Reset()
     {
