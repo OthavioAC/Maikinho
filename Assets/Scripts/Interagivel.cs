@@ -85,6 +85,9 @@ public class Interagivel : MonoBehaviour
             case TipoInteragivel.Grafitavel:
                 Core.SetIndicadorGrafite(true, custoTinta);
                 return false;
+            case TipoInteragivel.Barzin:
+                Core.SetIndicadorBarzin(true);
+                return false;
             case TipoInteragivel.Portal:
                 this.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
                 return false;
@@ -101,6 +104,7 @@ public class Interagivel : MonoBehaviour
             case TipoInteragivel.EscalavelHorizontal: return maicon.InteracaoEscalavelHorizontal(true);
             case TipoInteragivel.EscalavelOmnidirecional: return maicon.InteracaoEscalavelOmnidirecional(true);
             case TipoInteragivel.Grafitavel: return Core.SetIndicadorGrafite(false, custoTinta);
+            case TipoInteragivel.Barzin: return Core.SetIndicadorBarzin(false);
             case TipoInteragivel.Portal:
                 this.transform.GetChild(0).GetComponentInChildren<SpriteRenderer>().enabled = false;
                 return true;

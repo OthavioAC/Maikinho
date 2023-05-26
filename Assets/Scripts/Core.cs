@@ -118,6 +118,12 @@ public static class Core
             (custo[5] > 0 ? "\nM:" + custo[5] : string.Empty);
         return true;
     }
+    public static bool SetIndicadorBarzin(bool indicadorSetActive)
+    {
+        GameObject indicadorGrafite = Camera.main.transform.GetChild(0).GetChild(4).gameObject; // pessimo, mudar dps
+        indicadorGrafite.SetActive(indicadorSetActive);
+        return true;
+    }
     private static void UpdateDisplayTinta(CorTinta corSelecionada)
     {
         Transform referenciaUI = Camera.main.transform.GetChild(0).GetChild(0);
