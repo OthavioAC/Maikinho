@@ -104,10 +104,18 @@ public static class Core
         UpdateDisplayTinta(corSelecionada);
     }
     // ui
-    public static bool SetIndicadorGrafite(bool indicadorSetActive)
+    public static bool SetIndicadorGrafite(bool indicadorSetActive, int[] custo)
     {
         GameObject indicadorGrafite = Camera.main.transform.GetChild(0).GetChild(3).gameObject; // pessimo, mudar dps
         indicadorGrafite.SetActive(indicadorSetActive);
+        indicadorGrafite.GetComponentInChildren<TextMeshProUGUI>().text =
+            "Custo" + 
+            (custo[0] > 0 ? "\nR:" + custo[0] : string.Empty) +
+            (custo[1] > 0 ? "\nY:" + custo[1] : string.Empty) +
+            (custo[2] > 0 ? "\nG:" + custo[2] : string.Empty) +
+            (custo[3] > 0 ? "\nC:" + custo[3] : string.Empty) +
+            (custo[4] > 0 ? "\nB:" + custo[4] : string.Empty) +
+            (custo[5] > 0 ? "\nM:" + custo[5] : string.Empty);
         return true;
     }
     private static void UpdateDisplayTinta(CorTinta corSelecionada)
