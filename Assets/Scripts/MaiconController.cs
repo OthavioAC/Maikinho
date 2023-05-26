@@ -79,6 +79,8 @@ public class MaiconController : MonoBehaviour
     private List<Interagivel> objetosInteragiveis = new List<Interagivel>();
     private Interagivel interagivelAtual;
 
+    private List<(GameObject, float)> cooldownLixeiras = new List<(GameObject, float)>();
+
     public void AddObjetoInteragivel(Interagivel objetoInteragivel)
     {
         if (objetosInteragiveis.Count<Interagivel>() == 0)
@@ -101,6 +103,11 @@ public class MaiconController : MonoBehaviour
         }
     }
     
+    public TipoMovimento GetTipoMovimento()
+    {
+        return TipoMovimentoAtual;
+    }
+
     public bool GetSpriteFlipX()
     {
         return maiconSprite.flipX;
@@ -121,13 +128,31 @@ public class MaiconController : MonoBehaviour
     
     private void Update()
     {
-        Debug.Log(objetosInteragiveis.Count<Interagivel>());
-        if (corpoMaicon.velocity.x > speedTest)
+        /* GAMBETA MASTER pra lixeira */
+        for (int index = 0;  index < cooldownLixeiras.Count; index++)
         {
-            speedTest = corpoMaicon.velocity.x;
-            Debug.Log(speedTest);
+            if (cooldownLixeiras[index].Item1 != null)
+            {
+                if (cooldownLixeiras[index].Item2 <= 0f)
+                {
+                    cooldownLixeiras[index].Item1.GetComponent<Animator>().Play("abrirLixeira");
+                    cooldownLixeiras.RemoveAt(index);
+                    break;
+                }
+                if (cooldownLixeiras[index].Item2 == lixeiraDefaultCooldown)
+                {
+                    cooldownLixeiras[index] = (cooldownLixeiras[index].Item1, 40f);
+                    
+                    continue;
+                }
+                if(cooldownLixeiras[index].Item2 == 40f)
+                {
+                    cooldownLixeiras[index].Item1.GetComponent<Animator>().Play("fecharLixeira");
+                }
+                cooldownLixeiras[index] = (cooldownLixeiras[index].Item1, cooldownLixeiras[index].Item2 - Time.deltaTime);
+            }
         }
-        //
+
         if (Input.GetButton("BRANCO0") || Input.GetButton("BRANCO1")) skinTimer -= Time.deltaTime;
         if (Input.GetButtonUp("BRANCO0") || Input.GetButtonUp("BRANCO1")) skinTimer = 3f;
 
@@ -350,12 +375,18 @@ public class MaiconController : MonoBehaviour
         this.transform.position = new Vector3(interagivelAtual.transform.parent.GetChild(index).position.x, this.transform.position.y, 0f);
         return true;
     }
-    
+
+    private float lixeiraDefaultCooldown = 41f;
+
     public bool InteracaoEsconder(bool forceReset = false)
     {
         Animator lixeiraAnimation = interagivelAtual.GetComponent<Animator>();
         if (TipoMovimentoAtual == TipoMovimento.Livre && !forceReset)
         {
+            foreach ((GameObject, float) lixeiraCD in cooldownLixeiras)
+            {
+                if (lixeiraCD.Item1 == interagivelAtual.gameObject) return false;
+            }
             Core.IncrementaQuantidadeMoeda(1);
             lixeiraAnimation.Play("fecharLixeira");
             TipoMovimentoAtual = TipoMovimento.Escondido;
@@ -370,6 +401,7 @@ public class MaiconController : MonoBehaviour
         corpoMaicon.velocity = Vector2.zero;
         movimentoFinal = Vector2.zero;
         maiconSprite.enabled = true;
+        cooldownLixeiras.Add((interagivelAtual.gameObject, lixeiraDefaultCooldown));
         return true;
     }
 
