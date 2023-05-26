@@ -48,8 +48,14 @@ public class PolicialLanternaController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            policialAI.SetObjetoAlvo(null);
-            policialAI.SetState(PolicialAIState.Patrulha);
+            if ((!spriteLanterna.flipX && collision.transform.position.x > this.transform.position.x) || (spriteLanterna.flipX && collision.transform.position.x < this.transform.position.x))
+            {
+                policialAI.SetObjetoAlvo(null);
+                if (policialAI.GetState() == PolicialAIState.Ataque)
+                {
+                    policialAI.SetState(PolicialAIState.Atencao);
+                }
+            }
         }
     }
 }

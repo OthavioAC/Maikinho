@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
 
+public enum AnimacaoPolicial
+{
+    Idle,
+    Correr,
+    Atacar,
+    Escalar,
+}
+
 public enum PolicialAIState
 {
     Patrulha, // estado padrao, indo e voltando entre dois pontos especificos
-    Atencao, // estado de atencao em relacao ao maikinho (apenas policial civil usa)
+    Atencao, // estado de atencao em relacao ao maikinho
     Ataque, // notou que maikinho fez merda e vai atras
-    Procura // perdeu maikinho de vista e esta confuso
 }
 
 public enum TipoPolicial
@@ -28,16 +35,24 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
     private PolicialAIState estadoAtualDaIA;
     private TipoMovimento tipoMovimentoAtual;
     private Animator policialAnimator;
+    private Transform[] pontosDeAncora;
+    private MaiconController maiconController;
 
     private float velocidadePolicial; // 4 - 6
     private float velocidadeEscaladaPolicial; // 6 - 8
+
+    private float velocidadeAtualPolicial;
+    private float multiplicadorVelocidade = 1f;
 
     private float aceleracao = 1f;
     private float multiplicadorAceleracao = 3f;
 
     private Transform objetoAlvo;
 
-    private float cooldownVirar = 2.5f;
+    private int ancoraAtual = 1; // indice da ancora atual
+    private float cooldownVirar; // tempo que vira, parado no anchor point
+    private float tempoParaTroca = 10f; // tempo que fica parado em cada anchor point
+    private float tempoDeAtencao = 10f; // tempo que fica parado depois de perder o maikin de vista
 
     private GameObject escalavelDisponivel = null; // mudar pra lista dps... ou bool, mas acho que lista
 
@@ -76,9 +91,20 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
         return objetoAlvo;
     }
 
+    public PolicialAIState GetState()
+    {
+        return estadoAtualDaIA;
+    }
+
     public void SetState(PolicialAIState newState)
     {
         this.estadoAtualDaIA = newState;
+        tempoDeAtencao = 10f;
+    }
+
+    public TipoPolicial GetTipoPolicial()
+    {
+        return tipoPolicial;
     }
 
     private void Start()
@@ -92,12 +118,15 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
         currentDirection = this.transform.position;
         movimentoFinal = Vector2.zero;
         policialAnimator = this.GetComponent<Animator>();
+        pontosDeAncora = this.transform.parent.GetChild(1).GetComponentsInChildren<Transform>();
+        maiconController = maicon.GetComponent<MaiconController>();
+        foreach(Transform nha in pontosDeAncora)
+        {
+            Debug.Log(nha.gameObject.name);
+        }
 
         velocidadePolicial = tipoPolicial == TipoPolicial.Civil ? 4 : 6;
         velocidadeEscaladaPolicial = tipoPolicial == TipoPolicial.Civil ? 6 : 8;
-
-
-        policialAnimator.SetFloat("playbackSpeed", 1f);
     }
 
     private void Update()
@@ -114,23 +143,64 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
         switch (estadoAtualDaIA)
         {
             case PolicialAIState.Patrulha:
-                policialAnimator.Play(Animator.StringToHash("policial" + tipoPolicial.ToString() + "Idle"));
-                cooldownVirar -= Time.deltaTime;
-                if (cooldownVirar <= 0)
+                currentDirection = pontosDeAncora[ancoraAtual].position - this.transform.position;
+                //Debug.Log(currentDirection.x);
+                if (Mathf.Abs(currentDirection.x) <= 1f)
                 {
-                    spritePolicial.flipX = !spritePolicial.flipX;
-                    cooldownVirar = 2f;
+                    multiplicadorVelocidade = 0;
+                    TocarAnimacao(AnimacaoPolicial.Idle); // mudar dps
+                    if (tempoParaTroca <= 0f)
+                    {
+                        ancoraAtual = ancoraAtual == 1 ? 2 : 1;
+                        tempoParaTroca = Random.Range(5f, 10f);
+                        break;
+                    }
+                    if (cooldownVirar <= 0)
+                    {
+                        spritePolicial.flipX = !spritePolicial.flipX;
+                        cooldownVirar = Random.Range(2f, 3f);
+                    }
+                    tempoParaTroca -= Time.deltaTime;
+                    cooldownVirar -= Time.deltaTime;
+                    break;
                 }
+                multiplicadorVelocidade = 1f;
+                TocarAnimacao(AnimacaoPolicial.Correr);
+                spritePolicial.flipX = currentDirection.x < 0 ? true : (currentDirection.x > 0 ? false : spritePolicial.flipX);
                 break;
             case PolicialAIState.Atencao:
+                if (tempoDeAtencao > 0f)
+                {
+                    multiplicadorVelocidade = 0;
+                    tempoDeAtencao -= Time.deltaTime;
+                    TocarAnimacao(AnimacaoPolicial.Idle);
+                    break;
+                }
+                multiplicadorVelocidade = .3f;
+                currentDirection = pontosDeAncora[ancoraAtual].position - this.transform.position;
+                TocarAnimacao(AnimacaoPolicial.Correr, multiplicadorVelocidade);
+                spritePolicial.flipX = (maicon.position.x - this.transform.position.x) < 0 ? true : ((maicon.position.x - this.transform.position.x) > 0 ? false : spritePolicial.flipX);
+                if (Mathf.Abs(currentDirection.x) <= 1f)
+                {
+                    estadoAtualDaIA = PolicialAIState.Patrulha;
+                    tipoMovimentoAtual = TipoMovimento.Livre;
+                    tempoDeAtencao = 10f;
+                }
                 break;
             case PolicialAIState.Ataque:
                 if (objetoAlvo != null)
                 {
+                    if (maiconController.GetTipoMovimento() == TipoMovimento.Escondido)
+                    {
+                        this.SetMovimento(TipoMovimento.Livre);
+                        colisorPolicial.isTrigger = false;
+                        estadoAtualDaIA = PolicialAIState.Atencao;
+                    }
                     currentDirection = objetoAlvo.position - this.transform.position;
                     if (tipoMovimentoAtual == TipoMovimento.Livre)
                     {
-                        policialAnimator.Play(Animator.StringToHash("policial" + tipoPolicial.ToString() + (hitCooldown > 0 ? "Correr" : "Atacar")));
+                        multiplicadorVelocidade = Mathf.Abs(currentDirection.x) <= 1f ? 0f : 1f;
+                        TocarAnimacao(hitCooldown > 0 ? AnimacaoPolicial.Correr : AnimacaoPolicial.Atacar, multiplicadorVelocidade);
                         spritePolicial.flipX = currentDirection.x < 0 ? true : (currentDirection.x > 0 ? false : spritePolicial.flipX);
 
                         if (escalavelDisponivel != null && Mathf.Abs(currentDirection.x) < 5f && currentDirection.y > 6f)
@@ -141,7 +211,7 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
                     }
                     if (tipoMovimentoAtual == TipoMovimento.EscaladaOmnidirecional)
                     {
-                        policialAnimator.Play(Animator.StringToHash("policial" + tipoPolicial.ToString() + "Escalar"));
+                        TocarAnimacao(AnimacaoPolicial.Escalar);
                         this.transform.position += (Vector3)(currentDirection + Vector2.up).normalized * velocidadeEscaladaPolicial * Time.deltaTime;
 
                         if (Mathf.Abs(currentDirection.x) < 5f && currentDirection.y < -6f)
@@ -151,8 +221,6 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
                         }
                     }
                 }
-                break;
-            case PolicialAIState.Procura:
                 break;
         }
     }
@@ -171,13 +239,8 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
             movimentoFinal.y -= Core.GetGravidade();
             movimentoFinal.y = isGrounded ? -0.01f : movimentoFinal.y;
             // atualizar velocidade do policial
-            switch (estadoAtualDaIA)
-            {
-                case PolicialAIState.Patrulha:
-                case PolicialAIState.Ataque:
-                    corpoPolicial.velocity = new Vector2(movimentoFinal.x * velocidadePolicial, movimentoFinal.y);
-                    break;
-            }
+            velocidadeAtualPolicial = velocidadePolicial * multiplicadorVelocidade;
+            corpoPolicial.velocity = new Vector2(movimentoFinal.x * velocidadeAtualPolicial, movimentoFinal.y);
         }
     }
 
@@ -186,6 +249,17 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
         if(!(hitCooldown <= 0)) { return false; }
         Core.IncrementaPontosDeVida(-dano);
         hitCooldown = 10f;
+        if (this.tipoPolicial == TipoPolicial.Civil)
+        {
+            this.SetState(PolicialAIState.Patrulha);
+            tipoMovimentoAtual = TipoMovimento.Livre;
+        }
         return true;
+    }
+
+    public void TocarAnimacao(AnimacaoPolicial animacao, float playbackSpeed = 1f)
+    {
+        policialAnimator.SetFloat("playbackSpeed", playbackSpeed);
+        policialAnimator.Play(Animator.StringToHash("policial" + tipoPolicial.ToString() + animacao.ToString()));
     }
 }
