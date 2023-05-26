@@ -75,6 +75,8 @@ public class MaiconController : MonoBehaviour
     private Vector2 movimentoFinal;
     private float defaultAnimSpeed = .5f;
     //[SerializeField] private float baseCoyoteTime = 0f;
+
+    public bool primeiroGrafite = true;
     
     private List<Interagivel> objetosInteragiveis = new List<Interagivel>();
     private Interagivel interagivelAtual;
@@ -371,6 +373,10 @@ public class MaiconController : MonoBehaviour
 
     public bool InteracaoMudarRua()
     {
+        if (primeiroGrafite)
+        {
+            return false;
+        }
         int index = interagivelAtual.transform.parent.childCount - interagivelAtual.transform.GetSiblingIndex() - 1;
         this.transform.position = new Vector3(interagivelAtual.transform.parent.GetChild(index).position.x, this.transform.position.y, 0f);
         return true;
@@ -416,8 +422,13 @@ public class MaiconController : MonoBehaviour
         }
         if (passFlag && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0") //mudar o final
         {
+            if (primeiroGrafite)
+            {
+                primeiroGrafite = false;
+                Core.IncrementaQuantidadeMoeda(10);
+            }
             /* SPLACEHOLDER */
-            foreach(Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
+            foreach (Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
             {
                 if (spritePart.name == "GRAFITE_PH_1")
                 {

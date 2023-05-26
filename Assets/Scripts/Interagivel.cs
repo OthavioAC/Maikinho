@@ -89,6 +89,7 @@ public class Interagivel : MonoBehaviour
                 Core.SetIndicadorBarzin(true);
                 return false;
             case TipoInteragivel.Portal:
+                if (maicon.primeiroGrafite) return false;
                 this.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
                 return false;
             default:
@@ -106,6 +107,7 @@ public class Interagivel : MonoBehaviour
             case TipoInteragivel.Grafitavel: return Core.SetIndicadorGrafite(false, custoTinta);
             case TipoInteragivel.Barzin: return Core.SetIndicadorBarzin(false);
             case TipoInteragivel.Portal:
+                if (maicon.primeiroGrafite) return false;
                 this.transform.GetChild(0).GetComponentInChildren<SpriteRenderer>().enabled = false;
                 return true;
             default: return false;
