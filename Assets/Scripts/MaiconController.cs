@@ -200,11 +200,11 @@ public class MaiconController : MonoBehaviour
                         buffer = objetoAlvo;
                         break;
                     }
-
-                    bool flagEscalavelHorizontal = objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal;
-                    bool flagEscalavelVertical = objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical;
-                    bool flagEscalavelOmnidirecional = objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelOmnidirecional;
-                    bool flagEscalavel = flagEscalavelHorizontal || flagEscalavelVertical || flagEscalavelOmnidirecional;
+                    
+                    bool flagEscalavel = 
+                        objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal ||
+                        objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical ||
+                        objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelOmnidirecional;
                     if (TipoMovimentoAtual != TipoMovimento.Livre && objetoAlvo != interagivelAtual && flagEscalavel)
                     {
                         if (objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelVertical && interacaoVertical)
@@ -232,6 +232,21 @@ public class MaiconController : MonoBehaviour
                             interacaoDisponivel = true;
                             estaInteragindo = true;
                             interacaoDirecional = true;
+                            buffer = objetoAlvo;
+                            break;
+                        }
+                    }
+                    
+                    if (objetoAlvo.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal && this.transform.position.y - 1.5f > objetoAlvo.transform.position.y && movimentoVertical <= -1)
+                    {
+                        buffer = objetoAlvo;
+                        break;
+                    }
+
+                    if (objetoAlvo.GetTipoInteragivel() == TipoInteragivel.Grafitavel && buffer.GetTipoInteragivel() == TipoInteragivel.EscalavelHorizontal)
+                    {
+                        if (this.transform.position.y - 1.5f > buffer.transform.position.y && movimentoVertical != -1)
+                        {
                             buffer = objetoAlvo;
                             break;
                         }
