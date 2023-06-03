@@ -569,7 +569,7 @@ MonoBehaviour:
 
     [MENU | 1]
 
-    PARA JOGAR'
+    PARA INICIAR'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8948d1809d15ddd4e995f3ec870642cd, type: 2}
   m_sharedMaterial: {fileID: 5945933957368836177, guid: 8948d1809d15ddd4e995f3ec870642cd, type: 2}
