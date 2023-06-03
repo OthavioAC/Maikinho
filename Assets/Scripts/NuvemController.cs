@@ -12,7 +12,7 @@ public class NuvemController : MonoBehaviour
     private float bufferAltura = 20f;
 
     private float alturaInicial = 20f;
-    private float rangeAltura = 200f;
+    private float rangeAltura = 60f;
 
     private void Start()
     {
