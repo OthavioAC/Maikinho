@@ -15,6 +15,11 @@ public class CameraController : MonoBehaviour
     private (float, float)[] streetBounds =
     {
         (-20, 50), // RUA 0
+        (60, 194), // RUA 1
+		(196, 330), // RUA 2
+		(335, 432), // RUA 3
+		(450, 555), // RUA 4
+		(565, 700), // RUA 5
     };
 
     private Vector3 newCameraPosition;
