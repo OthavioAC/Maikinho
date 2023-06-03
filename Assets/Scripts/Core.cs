@@ -31,6 +31,16 @@ public static class Core
     private static int quantidadeMoeda = 0;
     private static int pontosDeVida = 0;
     private static int[] quantidadeTinta = { 0, 0, 0, 0, 0, 0 };
+    private static int grafitesFeitos = 0;
+    public static void IncrementaGrafitesFeitos()
+    {
+        grafitesFeitos += 1;
+        if (grafitesFeitos == 7)
+        {
+            gameOverState = GameOverState.GOOD_ENDING;
+            SceneManager.LoadScene("GameOver");
+        }
+    }
     //
     public static GameOverState GetGameOverState()
     {
@@ -131,35 +141,60 @@ public static class Core
         {
             foreach (Sprite spritePart in Resources.LoadAll<Sprite>("tintas"))
             {
-                if (spritePart.name.StartsWith("TINTA_VERMELHA_0"))
+                float quantidadeAtual = 0;
+                if (spritePart.name.StartsWith("TINTA_VERMELHA"))
                 {
-                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(5).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    quantidadeAtual = GetQuantidadeTinta(CorTinta.VERMELHA);
+                    if ((quantidadeAtual > 0 && spritePart.name == "TINTA_VERMELHA_1") || (quantidadeAtual <= 0 && spritePart.name == "TINTA_VERMELHA_0"))
+                    {
+                        referenciaUI.GetChild(5).GetComponent<Image>().sprite = spritePart;
+                    }
+                    referenciaUI.GetChild(5).GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : ((quantidadeAtual < 10 ? "x" : string.Empty) + quantidadeAtual.ToString());
                 }
-                if (spritePart.name.StartsWith("TINTA_AMARELA_0"))
+                if (spritePart.name.StartsWith("TINTA_AMARELA"))
                 {
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(4).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    quantidadeAtual = GetQuantidadeTinta(CorTinta.AMARELA);
+                    if ((quantidadeAtual > 0 && spritePart.name == "TINTA_AMARELA_1") || (quantidadeAtual <= 0 && spritePart.name == "TINTA_AMARELA_0"))
+                    {
+                        referenciaUI.GetChild(4).GetComponent<Image>().sprite = spritePart;
+                    }
+                    referenciaUI.GetChild(4).GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : ((quantidadeAtual < 10 ? "x" : string.Empty) + quantidadeAtual.ToString());
                 }
-                if (spritePart.name.StartsWith("TINTA_VERDE_0"))
+                if (spritePart.name.StartsWith("TINTA_VERDE"))
                 {
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(3).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    quantidadeAtual = GetQuantidadeTinta(CorTinta.VERDE);
+                    if ((quantidadeAtual > 0 && spritePart.name == "TINTA_VERDE_1") || (quantidadeAtual <= 0 && spritePart.name == "TINTA_VERDE_0"))
+                    {
+                        referenciaUI.GetChild(3).GetComponent<Image>().sprite = spritePart;
+                    }
+                    referenciaUI.GetChild(3).GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : ((quantidadeAtual < 10 ? "x" : string.Empty) + quantidadeAtual.ToString());
                 }
-                if (spritePart.name.StartsWith("TINTA_CIANO_0"))
+                if (spritePart.name.StartsWith("TINTA_CIANO"))
                 {
-                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(2).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    quantidadeAtual = GetQuantidadeTinta(CorTinta.CIANO);
+                    if ((quantidadeAtual > 0 && spritePart.name == "TINTA_CIANO_1") || (quantidadeAtual <= 0 && spritePart.name == "TINTA_CIANO_0"))
+                    {
+                        referenciaUI.GetChild(2).GetComponent<Image>().sprite = spritePart;
+                    }
+                    referenciaUI.GetChild(2).GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : ((quantidadeAtual < 10 ? "x" : string.Empty) + quantidadeAtual.ToString());
                 }
-                if (spritePart.name.StartsWith("TINTA_AZUL_0"))
+                if (spritePart.name.StartsWith("TINTA_AZUL"))
                 {
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    quantidadeAtual = GetQuantidadeTinta(CorTinta.AZUL);
+                    if ((quantidadeAtual > 0 && spritePart.name == "TINTA_AZUL_1") || (quantidadeAtual <= 0 && spritePart.name == "TINTA_AZUL_0"))
+                    {
+                        referenciaUI.GetChild(1).GetComponent<Image>().sprite = spritePart;
+                    }
+                    referenciaUI.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : ((quantidadeAtual < 10 ? "x" : string.Empty) + quantidadeAtual.ToString());
                 }
-                if (spritePart.name.StartsWith("TINTA_MAGENTA_0"))
+                if (spritePart.name.StartsWith("TINTA_MAGENTA"))
                 {
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = spritePart;
-                    referenciaUI.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
+                    quantidadeAtual = GetQuantidadeTinta(CorTinta.MAGENTA);
+                    if ((quantidadeAtual > 0 && spritePart.name == "TINTA_MAGENTA_1") || (quantidadeAtual <= 0 && spritePart.name == "TINTA_MAGENTA_0"))
+                    {
+                        referenciaUI.GetChild(0).GetComponent<Image>().sprite = spritePart;
+                    }
+                    referenciaUI.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = quantidadeAtual <= 1 ? string.Empty : ((quantidadeAtual < 10 ? "x" : string.Empty) + quantidadeAtual.ToString());
                 }
             }
             return;
@@ -357,6 +392,7 @@ public static class Core
         quantidadeTinta[(int)CorTinta.MAGENTA] = 0;
         quantidadeMoeda = 0;
         pontosDeVida = 0;
+        grafitesFeitos = 0;
     }
     // utilidades
     public static float AceleracaoDeDepieri(float movimentoHorizontalAtual, float direcaoHorizontal, float aceleracao, float multiplicadorAceleracao)

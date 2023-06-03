@@ -126,6 +126,7 @@ public class MaiconController : MonoBehaviour
         Core.SetPontosDeVida(6);
         Core.SetQuantidadeTinta(CorTinta.TODAS, 0);
         interagivelAtual = null;
+        
     }
     
     private void Update()
@@ -439,6 +440,7 @@ public class MaiconController : MonoBehaviour
                     }
                 }
             }
+            Core.IncrementaGrafitesFeitos();
         }
         return true;
     }
