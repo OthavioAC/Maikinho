@@ -33,6 +33,11 @@ public enum Skin
 
 public class MaiconController : MonoBehaviour
 {
+    [SerializeField] private GameObject coinTarget;
+    [SerializeField] private GameObject coinPrefab;
+
+    [SerializeField] private GameObject lifeTarget;
+    [SerializeField] private GameObject lifePrefab;
     private float speedTest = 0f;
     /*  */
     private Skin skinAtual;
@@ -379,10 +384,42 @@ public class MaiconController : MonoBehaviour
 
     public bool InteracaoBarzin()
     {
-        if (Core.GetQuantidadeMoeda() >= 5 && Core.GetPontosDeVida() < 12)
+        if (Core.GetQuantidadeMoeda() < 5)
+        {
+            return false;
+        }
+        float totalVida = Core.AgendarIncrementoVida();
+        if (totalVida < 13)
         {
             Core.IncrementaQuantidadeMoeda(-5);
-            Core.IncrementaPontosDeVida(1);
+            GameObject newLifeTarget = lifeTarget;
+            switch (totalVida)
+            {
+                case 2:
+                    newLifeTarget = lifeTarget.transform.GetChild(2).gameObject;
+                    break;
+                case 3:
+                case 4:
+                    newLifeTarget = lifeTarget.transform.GetChild(1).gameObject;
+                    break;
+                case 5:
+                case 6:
+                    newLifeTarget = lifeTarget.transform.GetChild(0).gameObject;
+                    break;
+                case 7:
+                case 8:
+                    newLifeTarget = lifeTarget.transform.GetChild(5).gameObject;
+                    break;
+                case 9:
+                case 10:
+                    newLifeTarget = lifeTarget.transform.GetChild(4).gameObject;
+                    break;
+                case 11:
+                case 12:
+                    newLifeTarget = lifeTarget.transform.GetChild(3).gameObject;
+                    break;
+            }
+            StartCoroutine(SpawnLife(newLifeTarget));
         } 
         return true;
     }
@@ -409,7 +446,8 @@ public class MaiconController : MonoBehaviour
             {
                 if (lixeiraCD.Item1 == interagivelAtual.gameObject) return false;
             }
-            Core.IncrementaQuantidadeMoeda(1);
+            StartCoroutine(this.SpawnCoin(UnityEngine.Random.Range(1, 4)));
+            //Core.IncrementaQuantidadeMoeda(1);
             lixeiraAnimation.Play("fecharLixeira");
             TipoMovimentoAtual = TipoMovimento.Escondido;
             corpoMaicon.velocity = Vector2.zero;
@@ -441,7 +479,8 @@ public class MaiconController : MonoBehaviour
             if (primeiroGrafite)
             {
                 primeiroGrafite = false;
-                Core.IncrementaQuantidadeMoeda(10);
+                StartCoroutine(this.SpawnCoin(9));
+                //Core.IncrementaQuantidadeMoeda(10);
             }
             /* SPLACEHOLDER */
             foreach (Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
@@ -455,6 +494,7 @@ public class MaiconController : MonoBehaviour
                     }
                 }
             }
+            StartCoroutine(this.SpawnCoin(1));
             Core.IncrementaGrafitesFeitos();
         }
         return true;
@@ -549,5 +589,25 @@ public class MaiconController : MonoBehaviour
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground")) isGrounded = false;
+    }
+
+    private IEnumerator SpawnCoin(int quantidade)
+    {
+        for (int index = 0; index < quantidade; index++)
+        {
+            GameObject newCoin = GameObject.Instantiate(coinPrefab, Camera.main.transform, false);
+            newCoin.transform.position = this.transform.position;
+            newCoin.GetComponent<CoinController>().SetTarget(coinTarget);
+            yield return new WaitForSeconds(.2f);
+        }
+        yield return null;
+    }
+
+    private IEnumerator SpawnLife(GameObject target)
+    {
+        GameObject newLife = GameObject.Instantiate(lifePrefab, Camera.main.transform, false);
+        newLife.transform.position = this.transform.position;
+        newLife.GetComponent<LifeController>().SetTarget(target);
+        yield return null;
     }
 }

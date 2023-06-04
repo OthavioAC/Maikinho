@@ -30,12 +30,15 @@ public static class Core
     private static float gravidade = 4f; // "constante"
     private static int quantidadeMoeda = 0;
     private static int pontosDeVida = 0;
+    private static int pontosDeVidaAgendados = 0;
     private static int[] quantidadeTinta = { 0, 0, 0, 0, 0, 0 };
     private static int grafitesFeitos = 0;
+    private static int grafitesDisponiveis = 7;
     public static void IncrementaGrafitesFeitos()
     {
         grafitesFeitos += 1;
-        if (grafitesFeitos == 7)
+        Camera.main.transform.GetChild(0).GetChild(5).GetComponent<TextMeshProUGUI>().text = grafitesFeitos + "/" + grafitesDisponiveis;
+        if (grafitesFeitos == grafitesDisponiveis)
         {
             gameOverState = GameOverState.GOOD_ENDING;
             SceneManager.LoadScene("GameOver");
@@ -87,6 +90,21 @@ public static class Core
     {
         pontosDeVida += incremento;
         if (pontosDeVida < 0) pontosDeVida = 0; // cap
+        UpdateDisplayVida();
+    }
+    public static int AgendarIncrementoVida()
+    {
+        if (pontosDeVida + pontosDeVidaAgendados + 1 > 12)
+        {
+            return pontosDeVida + pontosDeVidaAgendados + 1;
+        }
+        pontosDeVidaAgendados += 1;
+        return pontosDeVida + pontosDeVidaAgendados;
+    }
+    public static void AtualizarIncrementoVida()
+    {
+        pontosDeVida += 1;
+        pontosDeVidaAgendados -= 1;
         UpdateDisplayVida();
     }
     // tinta
