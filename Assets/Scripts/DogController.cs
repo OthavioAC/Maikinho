@@ -12,6 +12,7 @@ public class DogController : MonoBehaviour
     private SpriteRenderer spriteDog;
     private Rigidbody2D corpoDog;
     private Animator animatorDog;
+    private AudioSource audioDog;
     /* Movimento */
     private Vector2 direcaoAtual;
     private Vector2 movimentoFinal;
@@ -20,6 +21,7 @@ public class DogController : MonoBehaviour
     /* Flags */
     private bool isGrounded = true;
     private bool estaSeguindo = false;
+    private bool bark = false;
 
     private void Start()
     {
@@ -27,6 +29,7 @@ public class DogController : MonoBehaviour
         corpoDog = this.GetComponent<Rigidbody2D>();
         animatorDog = this.GetComponent<Animator>();
         spriteDog = this.GetComponent<SpriteRenderer>();
+        audioDog = this.GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -43,10 +46,16 @@ public class DogController : MonoBehaviour
         if(corpoDog.velocity.magnitude != 0f)
         {
             animatorDog.Play(Animator.StringToHash("doginCarameloRun"));
+            if (bark)
+            {
+                bark = false;
+                audioDog.Play();
+            }
         }
         else
         {
             animatorDog.Play(Animator.StringToHash("doginCarameloIdle"));
+            bark = true;
         }
     }
 
