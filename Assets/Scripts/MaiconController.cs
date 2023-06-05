@@ -5,6 +5,14 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using System.Linq;
 
+public enum TIPO_PISO
+{
+    Asfalto,
+    Porcelana,
+    Metal,
+    Pano,
+}
+
 public enum TipoMovimento
 {
     Livre,
@@ -39,6 +47,10 @@ public class MaiconController : MonoBehaviour
     [SerializeField] private GameObject lifeTarget;
     [SerializeField] private GameObject lifePrefab;
     private float speedTest = 0f;
+    /* Audio */
+    private AudioClip audioPulo;
+    private AudioClip audioEscalar;
+    private AudioClip audioAgarrar;
     /*  */
     private Skin skinAtual;
     private float skinTimer = 3f;
@@ -131,7 +143,11 @@ public class MaiconController : MonoBehaviour
         Core.SetPontosDeVida(6);
         Core.SetQuantidadeTinta(CorTinta.TODAS, 0);
         interagivelAtual = null;
-        
+
+
+        audioPulo = Resources.Load<AudioClip>("Audio/Pulo");
+        audioEscalar = Resources.Load<AudioClip>("Audio/EscalarCano");
+        audioAgarrar = Resources.Load<AudioClip>("Audio/AgarrarCano");
     }
     
     private void Update()
@@ -297,13 +313,14 @@ public class MaiconController : MonoBehaviour
                 if (!isGrounded)
                 {
                     maiconAnimator.SetFloat("playbackSpeed", defaultAnimSpeed);
-                    TocarAnimacao(corpoMaicon.velocity.y < 0 ? Animacao.Cair : Animacao.Pular);
+                    TocarAnimacao(corpoMaicon.velocity.y <= 0 ? Animacao.Cair : Animacao.Pular);
                 }
                 break;
             case TipoMovimento.EscaladaVertical:
                 // atualizacao do movimento de escalada
                 this.transform.position += new Vector3(0f, movimentoVertical * velocidadeDeEscalada, 0f) * Time.deltaTime;
                 maiconAnimator.SetFloat("playbackSpeed", Mathf.Abs(movimentoVertical) * defaultAnimSpeed);
+                TocarAnimacao(Animacao.Escalar);
                 if (botaoPulo)
                 {
                     puloAgendado = true;
@@ -315,6 +332,7 @@ public class MaiconController : MonoBehaviour
             case TipoMovimento.EscaladaHorizontal:
                 this.transform.position += new Vector3(movimentoHorizontal * velocidadeDeEscalada, 0f, 0f) * Time.deltaTime;
                 maiconAnimator.SetFloat("playbackSpeed", Mathf.Abs(movimentoHorizontal) * defaultAnimSpeed);
+                TocarAnimacao(Animacao.Escalar);
                 if (botaoPulo)
                 {
                     puloAgendado = true;
@@ -326,7 +344,8 @@ public class MaiconController : MonoBehaviour
                 break;
             case TipoMovimento.EscaladaOmnidirecional:
                 this.transform.position += new Vector3(movimentoHorizontal, movimentoVertical, 0f).normalized * velocidadeDeEscalada * Time.deltaTime;
-                maiconAnimator.SetFloat("playbackSpeed", (Mathf.Abs(movimentoHorizontal) + Mathf.Abs(movimentoVertical)) * defaultAnimSpeed);
+                maiconAnimator.SetFloat("playbackSpeed", Mathf.Max(Mathf.Abs(movimentoHorizontal), Mathf.Abs(movimentoVertical)) * defaultAnimSpeed);
+                TocarAnimacao(Animacao.Escalar);
                 if (botaoPulo)
                 {
                     puloAgendado = true;
@@ -375,9 +394,53 @@ public class MaiconController : MonoBehaviour
         }
     }
 
-    public void TocarAnimacao(Animacao animacao)
+    [SerializeField] private AudioSource nhaTEste;
+
+    public void TocarAnimacao(Animacao animacao, bool tocarOneShot = false)
     {
         maiconAnimator.Play(Animator.StringToHash("maicon" + skinAtual.ToString() + animacao.ToString()));
+        switch (animacao)
+        {
+            case Animacao.Idle:
+                nhaTEste.Stop();
+                break;
+            case Animacao.Correr:
+                AudioClip toLoad = Resources.Load<AudioClip>("Audio/" + animacao.ToString() + pisoAtual.ToString());
+                if (nhaTEste.isPlaying && toLoad == nhaTEste.clip) break;
+                else nhaTEste.clip = toLoad;
+                nhaTEste.Play();
+                break;
+            case Animacao.Pular:
+                if (nhaTEste.isPlaying && audioPulo == nhaTEste.clip) break;
+                else nhaTEste.clip = audioPulo;
+                nhaTEste.Play();
+                break;
+            case Animacao.Aterrissar:
+                nhaTEste.PlayOneShot(Resources.Load<AudioClip>("Audio/" + animacao.ToString() + pisoAtual.ToString()));
+                break;
+            case Animacao.Escalar:
+                if (tocarOneShot)
+                {
+                    nhaTEste.PlayOneShot(audioAgarrar);
+                    break;
+                }
+                if (maiconAnimator.GetFloat("playbackSpeed") != 0)
+                {
+                    if (nhaTEste.isPlaying && audioEscalar != nhaTEste.clip)
+                    {
+                        nhaTEste.clip = audioEscalar;
+                        nhaTEste.Play();
+                        break;
+                    }
+                    break;
+                }
+                if (nhaTEste.isPlaying && audioEscalar == nhaTEste.clip)
+                {
+                    nhaTEste.Stop();
+                    break;
+                }
+                break;
+        }
     }
 
     /* METODOS DE INTERACAO */
@@ -560,7 +623,7 @@ public class MaiconController : MonoBehaviour
         corpoMaicon.velocity = Vector2.zero;
         movimentoFinal = Vector2.zero;
         pehMaicon.isTrigger = true;
-        TocarAnimacao(Animacao.Escalar);
+        TocarAnimacao(Animacao.Escalar, true);
     }
 
     private void PadraoLivre()
@@ -572,10 +635,30 @@ public class MaiconController : MonoBehaviour
 
     /* COLLIDER */
 
+    private TIPO_PISO GetTipoPiso(string tag)
+    {
+        // depois mudar
+        switch (tag.Substring(6))
+        {
+            default:
+            case "Asfalto":
+                return TIPO_PISO.Asfalto;
+            case "Metal":
+                return TIPO_PISO.Metal;
+            case "Porcelana":
+                return TIPO_PISO.Porcelana;
+            case "Pano":
+                return TIPO_PISO.Pano;
+        }
+    }
+
+    TIPO_PISO pisoAtual;
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.tag.StartsWith("Ground"))
         {
+            pisoAtual = GetTipoPiso(collision.gameObject.tag);
             TocarAnimacao(Animacao.Aterrissar);
             estaPulando = false;
         }
@@ -583,12 +666,16 @@ public class MaiconController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        isGrounded = collision.gameObject.CompareTag("Ground") && pehMaicon.transform.position.y - collision.transform.position.y > 0 ? true : isGrounded; // por sleep dps
+        isGrounded = collision.gameObject.tag.StartsWith("Ground") && pehMaicon.transform.position.y - collision.transform.position.y > 0 ? true : isGrounded; // por sleep dps
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground")) isGrounded = false;
+        if (collision.gameObject.tag.StartsWith("Ground"))
+        {
+            pisoAtual = GetTipoPiso(collision.gameObject.tag);
+            isGrounded = false;
+        }
     }
 
     private IEnumerator SpawnCoin(int quantidade)

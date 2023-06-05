@@ -414,7 +414,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -733,6 +733,7 @@ MonoBehaviour:
   aceleracao: 1
   multiplicadorAceleracao: 3
   primeiroGrafite: 1
+  nhaTEste: {fileID: 24769800}
 --- !u!50 &76254841
 Rigidbody2D:
   serializedVersion: 4
@@ -857,7 +858,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: e913900489e41564e986d076dce0d8af, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.25
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -4341,7 +4342,7 @@ GameObject:
   - component: {fileID: 683959311}
   m_Layer: 0
   m_Name: R0_Telhado
-  m_TagString: Ground
+  m_TagString: GroundPorcelana
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4969,7 +4970,7 @@ GameObject:
   - component: {fileID: 799024016}
   m_Layer: 0
   m_Name: Chao Principal
-  m_TagString: Ground
+  m_TagString: GroundAsfalto
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6225,7 +6226,7 @@ GameObject:
   - component: {fileID: 986703244}
   m_Layer: 0
   m_Name: R1_Toldo
-  m_TagString: Ground
+  m_TagString: GroundPano
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -16126,7 +16127,7 @@ GameObject:
   - component: {fileID: 1836024182}
   m_Layer: 0
   m_Name: R1_TelhadoBaixo
-  m_TagString: Ground
+  m_TagString: GroundPorcelana
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -34982,7 +34983,7 @@ GameObject:
   - component: {fileID: 2109612904}
   m_Layer: 0
   m_Name: R1_Calha
-  m_TagString: Ground
+  m_TagString: GroundMetal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
