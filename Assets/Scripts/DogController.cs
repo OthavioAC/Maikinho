@@ -94,4 +94,13 @@ public class DogController : MonoBehaviour
             isGrounded = false;
         }
     }
+
+    public void SeguirMaicon()
+    {
+        if (estaSeguindo)
+        {
+            this.transform.position = maicon.position - (Vector3)(direcaoAtual.normalized * 3);
+            audioDog.Play();
+        }
+    }
 }

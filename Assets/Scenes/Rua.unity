@@ -726,6 +726,7 @@ MonoBehaviour:
   coinPrefab: {fileID: 2542551920978753574, guid: 88cf51e3d2848b04e924e4e8d5be0a5a, type: 3}
   lifeTarget: {fileID: 1687741166}
   lifePrefab: {fileID: 2542551920978753574, guid: d79a9ff488cf71e44bb4594eab991090, type: 3}
+  dogCaramelo: {fileID: 0}
   pulo: 30
   constanteDeDepieri: 1
   velocidadeDeEscalada: 7
@@ -5517,15 +5518,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'pular: T (VERMELHO)
+  m_text: 'andar: [ ALAVANCA | WASD | SETAS ]
 
-    correr: Y (PRETO)
+    pular: [ VERMELHO | T | I ]
 
-    interagir: R (VERDE) [siga
-    as exclamacoes]'
+    correr:
+    [ PRETO | Y | U ]
+
+    interagir: [ VERDE | R | O ]'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8948d1809d15ddd4e995f3ec870642cd, type: 2}
+  m_sharedMaterial: {fileID: 5945933957368836177, guid: 8948d1809d15ddd4e995f3ec870642cd, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5549,8 +5552,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35
-  m_fontSizeBase: 35
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

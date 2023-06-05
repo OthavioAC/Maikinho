@@ -46,6 +46,8 @@ public class MaiconController : MonoBehaviour
 
     [SerializeField] private GameObject lifeTarget;
     [SerializeField] private GameObject lifePrefab;
+
+    [SerializeField] private DogController dogCaramelo;
     private float speedTest = 0f;
     /* Audio */
     private AudioClip audioPulo;
@@ -497,6 +499,7 @@ public class MaiconController : MonoBehaviour
         }
         int index = interagivelAtual.transform.parent.childCount - interagivelAtual.transform.GetSiblingIndex() - 1;
         this.transform.position = new Vector3(interagivelAtual.transform.parent.GetChild(index).position.x, this.transform.position.y, 0f);
+        dogCaramelo.SeguirMaicon();
         return true;
     }
 
