@@ -144,7 +144,7 @@ public class MaiconController : MonoBehaviour
         Core.SetQuantidadeTinta(CorTinta.TODAS, 0);
         interagivelAtual = null;
 
-
+        audioSource = this.transform.GetChild(3).GetComponent<AudioSource>();
         audioPulo = Resources.Load<AudioClip>("Audio/Pulo");
         audioEscalar = Resources.Load<AudioClip>("Audio/EscalarCano");
         audioAgarrar = Resources.Load<AudioClip>("Audio/AgarrarCano");
@@ -394,49 +394,51 @@ public class MaiconController : MonoBehaviour
         }
     }
 
-    [SerializeField] private AudioSource nhaTEste;
+    private AudioSource audioSource;
 
     public void TocarAnimacao(Animacao animacao, bool tocarOneShot = false)
     {
         maiconAnimator.Play(Animator.StringToHash("maicon" + skinAtual.ToString() + animacao.ToString()));
         switch (animacao)
         {
-            case Animacao.Idle:
-                nhaTEste.Stop();
+            default:
+                audioSource.Stop();
                 break;
             case Animacao.Correr:
                 AudioClip toLoad = Resources.Load<AudioClip>("Audio/" + animacao.ToString() + pisoAtual.ToString());
-                if (nhaTEste.isPlaying && toLoad == nhaTEste.clip) break;
-                else nhaTEste.clip = toLoad;
-                nhaTEste.Play();
+                if (audioSource.isPlaying && toLoad == audioSource.clip) break;
+                else audioSource.clip = toLoad;
+                audioSource.Play();
+                break;
+            case Animacao.Cair:
                 break;
             case Animacao.Pular:
-                if (nhaTEste.isPlaying && audioPulo == nhaTEste.clip) break;
-                else nhaTEste.clip = audioPulo;
-                nhaTEste.Play();
+                if (audioSource.isPlaying && audioPulo == audioSource.clip) break;
+                else audioSource.clip = audioPulo;
+                audioSource.Play();
                 break;
             case Animacao.Aterrissar:
-                nhaTEste.PlayOneShot(Resources.Load<AudioClip>("Audio/" + animacao.ToString() + pisoAtual.ToString()));
+                audioSource.PlayOneShot(Resources.Load<AudioClip>("Audio/" + animacao.ToString() + pisoAtual.ToString()));
                 break;
             case Animacao.Escalar:
                 if (tocarOneShot)
                 {
-                    nhaTEste.PlayOneShot(audioAgarrar);
+                    audioSource.PlayOneShot(audioAgarrar);
                     break;
                 }
                 if (maiconAnimator.GetFloat("playbackSpeed") != 0)
                 {
-                    if (nhaTEste.isPlaying && audioEscalar != nhaTEste.clip)
+                    if (audioSource.isPlaying)
                     {
-                        nhaTEste.clip = audioEscalar;
-                        nhaTEste.Play();
+                        audioSource.clip = audioEscalar;
                         break;
                     }
+                    audioSource.Play();
                     break;
                 }
-                if (nhaTEste.isPlaying && audioEscalar == nhaTEste.clip)
+                if (audioSource.isPlaying && audioEscalar == audioSource.clip)
                 {
-                    nhaTEste.Stop();
+                    audioSource.Stop();
                     break;
                 }
                 break;
@@ -532,12 +534,11 @@ public class MaiconController : MonoBehaviour
     {
         SpriteRenderer grafiteSpriteRenderer = interagivelAtual.GetComponent<SpriteRenderer>();
         int[] custoTinta = interagivelAtual.GetCustoTinta();
-        bool passFlag = true;
         for (int index = 0; index < (int)CorTinta.TODAS; index++)
         {
-            if (Core.GetQuantidadeTinta((CorTinta)index) < custoTinta[index]) passFlag = false;
+            if (Core.GetQuantidadeTinta((CorTinta)index) < custoTinta[index]) return false;
         }
-        if (passFlag && grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0") //mudar o final
+        if (grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0") //mudar o final
         {
             if (primeiroGrafite)
             {
@@ -559,8 +560,9 @@ public class MaiconController : MonoBehaviour
             }
             StartCoroutine(this.SpawnCoin(1));
             Core.IncrementaGrafitesFeitos();
+            return true;
         }
-        return true;
+        return false;
     }
 
     public bool InteracaoEscalavelVertical(bool forceReset = false)

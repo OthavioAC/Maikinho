@@ -80,7 +80,9 @@ public class Interagivel : MonoBehaviour
         {
             case TipoInteragivel.Tinta:
                 Core.IncrementaQuantidadeTinta(corTinta, 1);
-                GameObject.Destroy(this.gameObject);
+                this.GetComponent<AudioSource>().Play();
+                this.GetComponent<SpriteRenderer>().enabled = false;
+                this.GetComponent<BoxCollider2D>().enabled = false;
                 return true;
             case TipoInteragivel.Grafitavel:
                 Core.SetIndicadorGrafite(true, custoTinta);
@@ -121,7 +123,13 @@ public class Interagivel : MonoBehaviour
             case TipoInteragivel.EscalavelVertical: return maicon.InteracaoEscalavelVertical();
             case TipoInteragivel.EscalavelHorizontal: return maicon.InteracaoEscalavelHorizontal();
             case TipoInteragivel.EscalavelOmnidirecional: return maicon.InteracaoEscalavelOmnidirecional();
-            case TipoInteragivel.Grafitavel: return maicon.InteracaoGrafite();
+            case TipoInteragivel.Grafitavel:
+                if (maicon.InteracaoGrafite())
+                {
+                    this.GetComponent<AudioSource>().Play();
+                    return true;
+                }
+                return false;
             case TipoInteragivel.Portal: return maicon.InteracaoMudarRua();
             case TipoInteragivel.Esconderijo: return maicon.InteracaoEsconder();
             case TipoInteragivel.Barzin: return maicon.InteracaoBarzin();

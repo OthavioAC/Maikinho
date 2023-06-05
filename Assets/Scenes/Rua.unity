@@ -733,7 +733,6 @@ MonoBehaviour:
   aceleracao: 1
   multiplicadorAceleracao: 3
   primeiroGrafite: 1
-  nhaTEste: {fileID: 24769800}
 --- !u!50 &76254841
 Rigidbody2D:
   serializedVersion: 4
@@ -1213,7 +1212,7 @@ GameObject:
   - component: {fileID: 136547957}
   m_Layer: 0
   m_Name: Square (2)
-  m_TagString: Ground
+  m_TagString: GroundMetal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9613,7 +9612,7 @@ GameObject:
   - component: {fileID: 1382916714}
   m_Layer: 0
   m_Name: Square (4)
-  m_TagString: Ground
+  m_TagString: GroundPano
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14394,7 +14393,7 @@ GameObject:
   - component: {fileID: 1594117105}
   m_Layer: 0
   m_Name: Square (3)
-  m_TagString: Ground
+  m_TagString: GroundPorcelana
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14539,7 +14538,7 @@ GameObject:
   - component: {fileID: 1628979554}
   m_Layer: 0
   m_Name: Square (1)
-  m_TagString: Ground
+  m_TagString: GroundMetal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15434,7 +15433,7 @@ GameObject:
   - component: {fileID: 1789647032}
   m_Layer: 0
   m_Name: Square
-  m_TagString: Ground
+  m_TagString: GroundMetal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
