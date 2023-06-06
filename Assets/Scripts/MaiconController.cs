@@ -48,6 +48,9 @@ public class MaiconController : MonoBehaviour
     [SerializeField] private GameObject lifePrefab;
 
     [SerializeField] private DogController dogCaramelo;
+
+
+    private GameObject tutorial;
     private float speedTest = 0f;
     /* Audio */
     private AudioClip audioPulo;
@@ -150,10 +153,13 @@ public class MaiconController : MonoBehaviour
         audioPulo = Resources.Load<AudioClip>("Audio/Pulo");
         audioEscalar = Resources.Load<AudioClip>("Audio/EscalarCano");
         audioAgarrar = Resources.Load<AudioClip>("Audio/AgarrarCano");
+
+        tutorial = Camera.main.transform.GetChild(0).GetChild(6).gameObject;
     }
     
     private void Update()
     {
+        tutorial.SetActive(Input.GetButton("AZUL0") || Input.GetButton("AZUL1"));
         /* GAMBETA MASTER pra lixeira */
         for (int index = 0;  index < cooldownLixeiras.Count; index++)
         {
@@ -463,7 +469,7 @@ public class MaiconController : MonoBehaviour
             switch (totalVida)
             {
                 case 2:
-                    newLifeTarget = lifeTarget.transform.GetChild(2).gameObject;
+                    newLifeTarget = lifeTarget.transform.GetChild(0).gameObject;
                     break;
                 case 3:
                 case 4:
@@ -471,11 +477,11 @@ public class MaiconController : MonoBehaviour
                     break;
                 case 5:
                 case 6:
-                    newLifeTarget = lifeTarget.transform.GetChild(0).gameObject;
+                    newLifeTarget = lifeTarget.transform.GetChild(2).gameObject;
                     break;
                 case 7:
                 case 8:
-                    newLifeTarget = lifeTarget.transform.GetChild(5).gameObject;
+                    newLifeTarget = lifeTarget.transform.GetChild(3).gameObject;
                     break;
                 case 9:
                 case 10:
@@ -483,7 +489,7 @@ public class MaiconController : MonoBehaviour
                     break;
                 case 11:
                 case 12:
-                    newLifeTarget = lifeTarget.transform.GetChild(3).gameObject;
+                    newLifeTarget = lifeTarget.transform.GetChild(5).gameObject;
                     break;
             }
             StartCoroutine(SpawnLife(newLifeTarget));
@@ -541,7 +547,7 @@ public class MaiconController : MonoBehaviour
         {
             if (Core.GetQuantidadeTinta((CorTinta)index) < custoTinta[index]) return false;
         }
-        if (grafiteSpriteRenderer.sprite.name == "GRAFITE_PH_0") //mudar o final
+        if (grafiteSpriteRenderer.sprite.name.EndsWith("_0")) //mudar o final
         {
             if (primeiroGrafite)
             {
@@ -549,16 +555,23 @@ public class MaiconController : MonoBehaviour
                 StartCoroutine(this.SpawnCoin(9));
                 //Core.IncrementaQuantidadeMoeda(10);
             }
-            /* SPLACEHOLDER */
-            foreach (Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE_PH"))
+            bool versionFlag = UnityEngine.Random.Range(0f, 1f) > .5f || grafiteSpriteRenderer.sprite.name.Contains("TORRE") || grafiteSpriteRenderer.sprite.name.Contains("DOG");
+            string newSprite = grafiteSpriteRenderer.sprite.name.Replace('0', (versionFlag ? '1' : '2'));
+            if (skinAtual == Skin.EasterEgg)
             {
-                if (spritePart.name == "GRAFITE_PH_1")
+                newSprite = "GRAFITE_SUS";
+            }
+            /* SPLACEHOLDER */
+            foreach (Sprite spritePart in Resources.LoadAll<Sprite>("GRAFITE"))
+            {
+                if (spritePart.name == newSprite)
                 {
                     grafiteSpriteRenderer.sprite = spritePart;
                     for (int index = 0; index < (int)CorTinta.TODAS; index++)
                     {
                         Core.IncrementaQuantidadeTinta((CorTinta)index, -custoTinta[index]);
                     }
+                    break;
                 }
             }
             StartCoroutine(this.SpawnCoin(1));
