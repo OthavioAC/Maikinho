@@ -60,7 +60,7 @@ public class MainMenu : MonoBehaviour
             if (eixo <= -1 && !selected)
             {
                 selected = true;
-                Debug.Log("SAI DO JOOJ");
+                Application.Quit();
             }
         }
     }
