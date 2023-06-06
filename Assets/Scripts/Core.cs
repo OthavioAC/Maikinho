@@ -33,7 +33,7 @@ public static class Core
     private static int pontosDeVidaAgendados = 0;
     private static int[] quantidadeTinta = { 0, 0, 0, 0, 0, 0 };
     private static int grafitesFeitos = 0;
-    private static int grafitesDisponiveis = 7;
+    private static int grafitesDisponiveis = 12;
     public static void IncrementaGrafitesFeitos()
     {
         grafitesFeitos += 1;
@@ -138,12 +138,12 @@ public static class Core
         indicadorGrafite.SetActive(indicadorSetActive);
         indicadorGrafite.GetComponentInChildren<TextMeshProUGUI>().text =
             "Custo" + 
-            (custo[0] > 0 ? "\nR:" + custo[0] : string.Empty) +
-            (custo[1] > 0 ? "\nY:" + custo[1] : string.Empty) +
-            (custo[2] > 0 ? "\nG:" + custo[2] : string.Empty) +
-            (custo[3] > 0 ? "\nC:" + custo[3] : string.Empty) +
-            (custo[4] > 0 ? "\nB:" + custo[4] : string.Empty) +
-            (custo[5] > 0 ? "\nM:" + custo[5] : string.Empty);
+            (custo[0] > 0 ? "\n<color=#FF0000>R:" + custo[0] + "</color>" : string.Empty) +
+            (custo[1] > 0 ? "\n<color=#FFFF00>Y:" + custo[1] + "</color>" : string.Empty) +
+            (custo[2] > 0 ? "\n<color=#00FF00>G:" + custo[2] + "</color>" : string.Empty) +
+            (custo[3] > 0 ? "\n<color=#00FFFF>C:" + custo[3] + "</color>" : string.Empty) +
+            (custo[4] > 0 ? "\n<color=#0000FF>B:" + custo[4] + "</color>" : string.Empty) +
+            (custo[5] > 0 ? "\n<color=#FF00FF>M:" + custo[5] : string.Empty);
         return true;
     }
     public static bool SetIndicadorBarzin(bool indicadorSetActive)
@@ -250,133 +250,133 @@ public static class Core
             {
                 default:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[0];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[0];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[0];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[0];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[0];
                     break;
                 case 1:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[0];
+                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[0];
                     referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[0];
-                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[1];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[1];
                     break;
                 case 2:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[0];
+                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[0];
                     referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[0];
-                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 3:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[0];
+                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[0];
                     referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[1];
-                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 4:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[0];
+                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[0];
                     referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 5:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[1];
+                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[1];
                     referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 6:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 7:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[4];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[4];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 8:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[3];
-                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[5];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[5];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 9:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[4];
-                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[5];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[5];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 10:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[3];
+                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[3];
                     referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[5];
-                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[5];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[5];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 11:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[4];
+                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[4];
                     referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[5];
-                    referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[5];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[5];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
                 case 12:
                     /* CORACAO EXTRA */
-                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[5];
-                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[5];
                     referenciaUI.GetChild(5).GetComponent<Image>().sprite = vida[5];
+                    referenciaUI.GetChild(4).GetComponent<Image>().sprite = vida[5];
+                    referenciaUI.GetChild(3).GetComponent<Image>().sprite = vida[5];
                     /* CORACAO NORMAL */
-                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
-                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
                     referenciaUI.GetChild(2).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(1).GetComponent<Image>().sprite = vida[2];
+                    referenciaUI.GetChild(0).GetComponent<Image>().sprite = vida[2];
                     break;
 
             }
