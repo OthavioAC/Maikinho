@@ -245,8 +245,8 @@ public class PolicialAI : MonoBehaviour // esse codigo da um caos, eu tenho que 
 
     public bool HitPlayer(int dano)
     {
-        if(!(hitCooldown <= 0)) { return false; }
-        Core.IncrementaPontosDeVida(-dano);
+        if(!(hitCooldown <= 0) || maicon.GetComponent<MaiconController>().GetTipoMovimento() == TipoMovimento.Escondido) { return false; }
+        Core.IncrementaPontosDeVida(this.tipoPolicial == TipoPolicial.Civil ? - dano : - 2 * dano);
         hitCooldown = 10f;
         if (this.tipoPolicial == TipoPolicial.Civil)
         {
